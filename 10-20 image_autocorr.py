@@ -29,6 +29,13 @@ absDoubleStar = np.abs( fftDoubleStar)
 psdSingleStar = absSingleStar**2
 psdDoubleStar = absDoubleStar**2
 
+# Do iFFT on PSD's, bringing back to spatial domain
+# This should give us the autocorrelations of original images
+acorrSingleStar = ifft2(psdSingleStar)
+acorrDoubleStar = ifft2(psdDoubleStar)
+# Taking iFFT of PSD (all real values) results in complex valued output
+#  Must view the magnitude of the output
+
 # For a FITS cube, would calculate averages of all the PSDs
 
 ## Postprocessing of data
@@ -41,26 +48,34 @@ psdDoubleStar = absDoubleStar**2
 # View images
 ## Figure 1 : Single Star
 plt.figure(1)
-plt.subplot(2,1,1)
+plt.subplot(1,3,1)
 plt.imshow(imgSingleStar, cmap=plt.cm.Greys)
 plt.title('Single Star Image')
 
 
-plt.subplot(2,1,2)
+plt.subplot(1,3,2)
 plt.imshow(np.log10( psdSingleStar ), cmap=plt.cm.Greys)
 plt.title('Single Star PSD')
+
+plt.subplot(1,3,3)
+plt.imshow( np.abs(acorrSingleStar) , cmap=plt.cm.Greys)
+plt.title('Single Star Autocorrelation')
 
 
 ## Figure 2 : Double Star
 plt.figure(2)
-plt.subplot(2,1,1)
+plt.subplot(1,3,1)
 plt.imshow(imgDoubleStar, cmap=plt.cm.Greys)
 plt.title('Double Star Image')
 
 
-plt.subplot(2,1,2)
+plt.subplot(1,3,2)
 plt.imshow(np.log10( psdDoubleStar ), cmap=plt.cm.Greys)
 plt.title('Double Star PSD')
+
+plt.subplot(1,3,3)
+plt.imshow( np.abs(acorrDoubleStar) , cmap=plt.cm.Greys)
+plt.title('Double Star Autocorrelation')
 
 
 plt.show()
