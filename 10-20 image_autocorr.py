@@ -29,20 +29,28 @@ absDoubleStar = np.abs( fftDoubleStar)
 psdSingleStar = absSingleStar**2
 psdDoubleStar = absDoubleStar**2
 
+# Calculate difference of log10(PSD's), this is equivalent
+#  to deconvolving the two
+psdDeconvolved = np.log10(psdDoubleStar) - np.log10(psdSingleStar)
+psdDeconvolved = 10**psdDeconvolved
+
 # Doing FFT shift on PSD, which moves low spatial frequencies to center
 psdSingleStar = fftshift(psdSingleStar)
 psdDoubleStar = fftshift(psdDoubleStar)
+psdDeconvolved = fftshift(psdDeconvolved)
 
 # Do iFFT on PSD's, bringing back to spatial domain
 # This should give us the autocorrelations of original images
 acorrSingleStar = ifft2(psdSingleStar)
 acorrDoubleStar = ifft2(psdDoubleStar)
+acorrDeconvolved = ifft2(psdDeconvolved)
 
 # Taking iFFT of PSD (all real values) results in complex valued output
 #  Must view the magnitude of the output
 #  Doing FFTshift to move eyes of autocorrelation near center
 acorrSingleStar = np.abs(fftshift(acorrSingleStar))
 acorrDoubleStar = np.abs(fftshift(acorrDoubleStar))
+acorrDeconvolved = np.abs(fftshift(acorrDeconvolved))
 
 # View images
 ## Figure 1 : Single Star
@@ -59,7 +67,6 @@ plt.subplot(1,3,3)
 plt.imshow( acorrSingleStar , cmap=plt.cm.Greys)
 plt.title('Single Star Autocorrelation')
 
-
 ## Figure 2 : Double Star
 plt.figure(num=2, figsize=(9,3), dpi = 120)
 plt.subplot(1,3,1)
@@ -74,6 +81,15 @@ plt.subplot(1,3,3)
 plt.imshow( acorrDoubleStar , cmap=plt.cm.Greys)
 plt.title('Double Star Autocorrelation')
 
+## Figure 3 : Deconvolution
+plt.figure(num=3,figsize=(6,3),dpi=120)
+plt.subplot(1,2,1)
+plt.imshow(np.log10(psdDeconvolved), cmap=plt.cm.Greys)
+plt.title('Deconvolution PSD')
+
+plt.subplot(1,2,2)
+plt.imshow(acorrDeconvolved, cmap=plt.cm.Greys)
+plt.title('Deconvolution Autocorrelation')
 
 plt.show()
 
