@@ -1,4 +1,4 @@
-""" This is a test of importing an artificial speckle image
+""" This is a test of importing a speckle image
     and performing some frequency domain analysis on it
 
     Niels Smidth - 10/16/15
@@ -9,74 +9,53 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import numpy as np
 from scipy.fftpack import fft2,ifft2, fftshift
+import tkinter as tk
+from tkinter import filedialog
 
 # Import images
-imgSingleStar = mpimg.imread('10-15 Single Speckle Test.png')
-imgSingleStar = imgSingleStar[:,:,1] # Only care about one channel
-imgDoubleStar = mpimg.imread('10-15 Binary Speckle Test.png')
-imgDoubleStar = imgDoubleStar[:,:,1] # Only care about one channel
+root = tk.Tk()
+root.withdraw()
+file_path = filedialog.askopenfilename()
+imgStar = mpimg.imread(file_path)
+imgStar = imgStar[:,:,1] # Only care about one channel
 
 ## Preprocessing of data
 # Take FFT of images, this gives us complex numbers
-fftSingleStar = fft2(imgSingleStar)
-fftDoubleStar = fft2(imgDoubleStar)
+fftStar = fft2(imgStar)
 
 # Calculate 2D power spectrum
 # This gives us only real values as 
-absSingleStar = np.abs( fftSingleStar)
-absDoubleStar = np.abs( fftDoubleStar)
-
-psdSingleStar = absSingleStar**2
-psdDoubleStar = absDoubleStar**2
+absStar = np.abs( fftStar)
+psdStar = absStar**2
 
 # Doing FFT shift on PSD, which moves low spatial frequencies to center
-psdSingleStar = fftshift(psdSingleStar)
-psdDoubleStar = fftshift(psdDoubleStar)
+psdStar = fftshift(psdStar)
 
 # Do iFFT on PSD's, bringing back to spatial domain
 # This should give us the autocorrelations of original images
-acorrSingleStar = ifft2(psdSingleStar)
-acorrDoubleStar = ifft2(psdDoubleStar)
-
+acorrStar = ifft2(psdStar)
 
 # Taking iFFT of PSD (all real values) results in complex valued output
 #  Must view the magnitude of the output
 #  Doing FFTshift to move eyes of autocorrelation near center
-acorrSingleStar = np.abs(fftshift(acorrSingleStar))
-acorrDoubleStar = np.abs(fftshift(acorrDoubleStar))
+acorrStar = np.abs(fftshift(acorrStar))
 # Taking iFFT of PSD (all real values) results in complex valued output
 #  Must view the magnitude of the output
 
 # View images
-## Figure 1 : Single Star
 plt.figure(num=1,figsize=(9,3),dpi=120)
 plt.subplot(1,3,1)
-plt.imshow(imgSingleStar, cmap=plt.cm.Greys)
-plt.title('Single Star Image')
+plt.imshow(imgStar, cmap=plt.cm.Greys)
+plt.title('Star Image')
 
 
 plt.subplot(1,3,2)
-plt.imshow(np.log10( psdSingleStar ), cmap=plt.cm.Greys)
-plt.title('Single Star PSD')
+plt.imshow(np.log10( psdStar ), cmap=plt.cm.Greys)
+plt.title('Star PSD')
 
 plt.subplot(1,3,3)
-plt.imshow( np.abs(acorrSingleStar) , cmap=plt.cm.Greys)
-plt.title('Single Star Autocorrelation')
-
-## Figure 2 : Double Star
-plt.figure(num=2,figsize=(9,3),dpi=120)
-plt.subplot(1,3,1)
-plt.imshow(imgDoubleStar, cmap=plt.cm.Greys)
-plt.title('Double Star Image')
-
-
-plt.subplot(1,3,2)
-plt.imshow(np.log10( psdDoubleStar ), cmap=plt.cm.Greys)
-plt.title('Double Star PSD')
-
-plt.subplot(1,3,3)
-plt.imshow( np.abs(acorrDoubleStar) , cmap=plt.cm.Greys)
-plt.title('Double Star Autocorrelation')
+plt.imshow( np.abs(acorrStar) , cmap=plt.cm.Greys)
+plt.title('Star Autocorrelation')
 
 plt.show()
 
