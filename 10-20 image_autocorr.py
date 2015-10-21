@@ -6,18 +6,41 @@
 
 # Import Modules
 import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
 import numpy as np
 from scipy.fftpack import fft2,ifft2, fftshift
+
+from astropy.io import fits
+
 import tkinter as tk
 from tkinter import filedialog
 
-# Import images
+# Importing FITS Data
+print("Please select a FITS file")
 root = tk.Tk()
 root.withdraw()
-file_path = filedialog.askopenfilename()
-imgStar = mpimg.imread(file_path)
-imgStar = imgStar[:,:,1] # Only care about one channel
+
+## Debug: don't want to select file each time
+## file_path = filedialog.askopenfilename()
+## HDUList = fits.open(file_path)
+
+## Debug: we'll be working on the same .fits file each time
+HDUList = fits.open("/home/niels/Desktop/KP330.fits")
+
+# Print FITS File Info & Headers
+HDUList.info()
+print()
+print("Headers:")
+print(repr(HDUList[0].header))
+
+# Save data in FITS cube, then close FITS file
+fitsData = HDUList[0].data
+HDUList.close()
+
+## Debug : Use first image in cube
+imgStar = fitsData[0,:,:]
+
+# FFT function requires little-endian data, so casting it
+imgStar = imgStar.astype(float)
 
 ## Preprocessing of data
 # Take FFT of images, this gives us complex numbers
@@ -54,10 +77,11 @@ plt.imshow(np.log10( psdStar ), cmap=plt.cm.Greys)
 plt.title('Star PSD')
 
 plt.subplot(1,3,3)
-plt.imshow( np.abs(acorrStar) , cmap=plt.cm.Greys)
+plt.imshow(np.abs(acorrStar) , cmap=plt.cm.Greys)
 plt.title('Star Autocorrelation')
 
 plt.show()
+
 
 # Debug End of Code
 print("Done Running")
