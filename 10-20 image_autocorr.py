@@ -1,5 +1,6 @@
-""" This is a test of importing a speckle image
-    and performing some frequency domain analysis on it
+""" 
+
+    Attempting to recreate PS3's Speckle Processing
 
     Niels Smidth - 10/16/15
 """
@@ -18,13 +19,8 @@ from tkinter import filedialog
 print("Please select a FITS file")
 root = tk.Tk()
 root.withdraw()
-
-## Debug: don't want to select file each time
-## file_path = filedialog.askopenfilename()
-## HDUList = fits.open(file_path)
-
-## Debug: we'll be working on the same .fits file each time
-HDUList = fits.open("/home/niels/Desktop/KP330.fits")
+file_path = filedialog.askopenfilename()
+HDUList = fits.open(file_path)
 
 # Print FITS File Info & Headers
 HDUList.info()
@@ -32,31 +28,41 @@ print()
 print("Headers:")
 print(repr(HDUList[0].header))
 
-# Save data in FITS cube, then close FITS file
+# Save data in FITS cube to local variable, then close FITS file
 fitsData = HDUList[0].data
 HDUList.close()
 
-## Debug : Use first image in cube
-imgStar = fitsData[0,:,:]
+# Generate empty array the size of an image to be used to accumulate
+#  PSD values before averaging. 
+psdSum = np.zeros(fitsData.shape[1:3])
 
-# FFT function requires little-endian data, so casting it
-imgStar = imgStar.astype(float)
+# Looping through all images in cube
+for img in fitsData[:]:
 
-## Preprocessing of data
-# Take FFT of images, this gives us complex numbers
-fftStar = fft2(imgStar)
+    # FFT function requires little-endian data, so casting it
+    imgStar = img.astype(float)
 
-# Calculate 2D power spectrum
-# This gives us only real values as 
-absStar = np.abs( fftStar)
-psdStar = absStar**2
+    ## Preprocessing of data
+    # Take FFT of images, this gives us complex numbers
+    fftStar = fft2(imgStar)
 
-# Doing FFT shift on PSD, which moves low spatial frequencies to center
-psdStar = fftshift(psdStar)
+    # Calculate 2D power spectrum
+    # This gives us only real values as 
+    absStar = np.abs( fftStar)
+    psdStar = absStar**2
+
+    # Doing FFT shift on PSD, which moves low spatial frequencies to center
+    psdStar = fftshift(psdStar)
+
+    # Accumulate current PSD value
+    psdSum += psdStar
+
+# Divide by # of images to calculate average
+psdAvg = psdSum/fitsData.shape[0]
 
 # Do iFFT on PSD's, bringing back to spatial domain
 # This should give us the autocorrelations of original images
-acorrStar = ifft2(psdStar)
+acorrStar = ifft2(psdAvg)
 
 # Taking iFFT of PSD (all real values) results in complex valued output
 #  Must view the magnitude of the output
@@ -66,22 +72,23 @@ acorrStar = np.abs(fftshift(acorrStar))
 #  Must view the magnitude of the output
 
 # View images
+
 plt.figure(num=1,figsize=(9,3),dpi=120)
 plt.subplot(1,3,1)
-plt.imshow(imgStar, cmap=plt.cm.Greys)
-plt.title('Star Image')
-
+plt.imshow(imgStar)
+plt.title('Ex Star Image')
 
 plt.subplot(1,3,2)
-plt.imshow(np.log10( psdStar ), cmap=plt.cm.Greys)
-plt.title('Star PSD')
+plt.imshow(np.log10( psdAvg ))
+plt.title('Avg Star PSD')
 
 plt.subplot(1,3,3)
-plt.imshow(np.abs(acorrStar) , cmap=plt.cm.Greys)
-plt.title('Star Autocorrelation')
+plt.imshow(np.abs(acorrStar))
+plt.title('Autocorrelation')
 
 plt.show()
 
 
 # Debug End of Code
 print("Done Running")
+
