@@ -17,10 +17,10 @@ from tkinter import filedialog
 
 # Importing FITS Data
 print("Please select a FITS file")
-root = tk.Tk()
+root = tk.Tk()  # Starting up Tkinter
 root.withdraw()
-file_path = filedialog.askopenfilename()
-HDUList = fits.open(file_path)
+file_path = filedialog.askopenfilename() # Filename dialog
+HDUList = fits.open(file_path)  # Open FITS Data
 
 # Print FITS File Info & Headers
 HDUList.info()
@@ -55,10 +55,10 @@ for img in fitsData[:]:
     psdStar = fftshift(psdStar)
 
     # Accumulate current PSD value
-    psdSum += psdStar
+    psdSum = np.add(psdSum,psdStar)
 
 # Divide by # of images to calculate average
-psdAvg = psdSum/fitsData.shape[0]
+psdAvg = np.divide(psdSum,fitsData.shape[0])
 
 # Do iFFT on PSD's, bringing back to spatial domain
 # This should give us the autocorrelations of original images
@@ -72,7 +72,6 @@ acorrStar = np.abs(fftshift(acorrStar))
 #  Must view the magnitude of the output
 
 # View images
-
 plt.figure(num=1,figsize=(9,3),dpi=120)
 plt.subplot(1,3,1)
 plt.imshow(imgStar)
