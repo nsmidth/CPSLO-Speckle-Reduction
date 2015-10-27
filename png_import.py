@@ -1,5 +1,5 @@
-""" This is a test of importing an artificial speckle image
-    and performing some frequency domain analysis on it
+"""
+    This is a test of importing an image
 
     Niels Smidth - 10/16/15
 """
