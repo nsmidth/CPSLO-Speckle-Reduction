@@ -132,7 +132,7 @@ def postprocess( psdAvg ):
 #  acorrStar : Autocorrelation of a star
 def print_star(imgStar, psdAvg, acorrStar):
     # View images
-    plt.figure(num=1,figsize=(9,3),dpi=120)
+    plt.figure(figsize=(9,3),dpi=120)
     plt.subplot(1,3,1)
     plt.imshow(imgStar)
     plt.title('Ex Star Image')
