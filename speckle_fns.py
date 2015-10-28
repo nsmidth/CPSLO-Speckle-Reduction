@@ -141,9 +141,11 @@ def print_star(imgStar, psdAvg, acorrStar):
     plt.imshow(fftshift( np.log10(1+psdAvg)) )
     plt.title('Avg Star PSD')
 
+
     plt.subplot(1,3,3)
     plt.imshow(np.abs(acorrStar))
     plt.title('Autocorrelation')
+    plt.colorbar()
 
     plt.show()
 
@@ -163,3 +165,29 @@ def fits_generate(filename, data):
 
     # Write to new file
     hdulist.writeto(filename)
+
+# deconv0()
+#
+# Deconvolve a single reference star from binary star.
+#  This method replaces matching zeros in single/double 
+#  star PSDs with small value (to avoid divide by zero).
+#  Then the double star PSD divided by single star PSD
+#
+# Args:
+#  psdDoubleStar : numpy array of average PSD of double star
+#  psdSingleStar : numpy array of average PSD of single star
+#
+# Returns deconvolved PSD
+def deconv0(psdDoubleStar, psdSingleStar, zeroSub = 0.001):
+
+    # In double star PSD, replace pixels that are 0 in both double and
+    #  single star PSDs
+#    psdDoubleStar[ (psdSingleStar == 0) and (psdDoubleStar == 0) ] = zeroSub
+
+    # Replace all 0's in single star PSD
+    psdSingleStar[psdSingleStar == 0] = zeroSub
+
+    # Divide double PSD by reference single PSD to deconvolve
+    psdDeconv = np.divide(psdDoubleStar, psdSingleStar)
+
+    return psdDeconv
