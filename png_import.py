@@ -25,19 +25,20 @@ psdSingleStar = preprocess( imgSingleStar )
 psdDoubleStar = preprocess( imgDoubleStar )
 
 # Perform deconvolution on images
-psdDeconv0 = deconv0(psdDoubleStar, psdSingleStar)
+zeroSub = 0.001
+psdDeconv0 = deconv0(psdDoubleStar, psdSingleStar, zeroSub)
 
 # Perform postprocessing on images
 acorrSingleStar = postprocess( psdSingleStar )
 acorrDoubleStar = postprocess( psdDoubleStar )
-acorrDeconv0 = postprocess( psdDeconv0 )
+#acorrDeconv0 = postprocess( psdDeconv0 )
 
 # View images
 printImg = input("Print star images (y/n)?   ")
 if (printImg.lower() == "y"):
     print_star(imgSingleStar, psdSingleStar, acorrSingleStar)
     print_star(imgDoubleStar, psdDoubleStar, acorrDoubleStar)
-    print_star(imgDoubleStar, psdDeconv0, acorrDeconv0)
+    #print_star(imgDoubleStar, psdDeconv0, acorrDeconv0)
 
 # Debug End of Code
 print("Done Running")

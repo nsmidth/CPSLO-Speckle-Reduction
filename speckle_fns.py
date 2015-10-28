@@ -169,9 +169,10 @@ def fits_generate(filename, data):
 # deconv0()
 #
 # Deconvolve a single reference star from binary star.
-#  This method replaces matching zeros in single/double 
-#  star PSDs with small value (to avoid divide by zero).
-#  Then the double star PSD divided by single star PSD
+#  This method replaces zeros in single star PSD and 
+#  corresponding zeros in double star PSD with small
+#  value (to avoid divide by zero). Then the double
+#  star PSD divided by single star PSD
 #
 # Args:
 #  psdDoubleStar : numpy array of average PSD of double star
@@ -180,14 +181,22 @@ def fits_generate(filename, data):
 # Returns deconvolved PSD
 def deconv0(psdDoubleStar, psdSingleStar, zeroSub = 0.001):
 
-    # In double star PSD, replace pixels that are 0 in both double and
-    #  single star PSDs
-#    psdDoubleStar[ (psdSingleStar == 0) and (psdDoubleStar == 0) ] = zeroSub
+    # Modified Single and Double Star arrays (zeros removed)
+    psdSingleStarMod = np.array(psdSingleStar)
+    psdDoubleStarMod = np.array(psdDoubleStar)
 
-    # Replace all 0's in single star PSD
-    psdSingleStar[psdSingleStar == 0] = zeroSub
+    # Find values of 0 in psdSingleStar
+    zeroIndex = np.where( psdSingleStarMod == 0 )
+    # Set all 0's to zeroSub
+    psdSingleStarMod[zeroIndex] = zeroSub
 
-    # Divide double PSD by reference single PSD to deconvolve
-    psdDeconv = np.divide(psdDoubleStar, psdSingleStar)
+    # If the location corresponding to a 0 in psdSingleStar also has a 0 in
+    #  psdDoubleStar, also change that to zeroSub
+    for [index, value] in enumerate(psdDoubleStarMod[zeroIndex]):
+        if ( psdDoubleStarMod[ zeroIndex[0][index], zeroIndex[1][index] ] == 0 ):
+            psdDoubleStarMod[ zeroIndex[0][index], zeroIndex[1][index] ] = zeroSub
+
+    # Divide double PSD by modified reference single PSD to deconvolve
+    psdDeconv = np.divide(psdDoubleStarMod, psdSingleStarMod)    
 
     return psdDeconv
