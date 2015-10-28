@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import numpy as np
 from speckle_fns import preprocess,postprocess,print_star
-from speckle_fns import deconv0
+from speckle_fns import deconv1
 
 # Import images
 imgSingleStar = mpimg.imread('10-15 Single Speckle Test.png')
@@ -25,20 +25,20 @@ psdSingleStar = preprocess( imgSingleStar )
 psdDoubleStar = preprocess( imgDoubleStar )
 
 # Perform deconvolution on images
-zeroSub = 0.001
-psdDeconv0 = deconv0(psdDoubleStar, psdSingleStar, zeroSub)
+constant = 0.001
+psdDeconv1 = deconv1(psdDoubleStar, psdSingleStar, constant)
 
 # Perform postprocessing on images
 acorrSingleStar = postprocess( psdSingleStar )
 acorrDoubleStar = postprocess( psdDoubleStar )
-#acorrDeconv0 = postprocess( psdDeconv0 )
+acorrDeconv1 = postprocess( psdDeconv1 )
 
 # View images
 printImg = input("Print star images (y/n)?   ")
 if (printImg.lower() == "y"):
     print_star(imgSingleStar, psdSingleStar, acorrSingleStar)
     print_star(imgDoubleStar, psdDoubleStar, acorrDoubleStar)
-    #print_star(imgDoubleStar, psdDeconv0, acorrDeconv0)
+    print_star(imgDoubleStar, psdDeconv1, acorrDeconv1)
 
 # Debug End of Code
 print("Done Running")

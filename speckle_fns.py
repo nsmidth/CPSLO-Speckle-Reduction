@@ -200,3 +200,21 @@ def deconv0(psdDoubleStar, psdSingleStar, zeroSub = 0.001):
     psdDeconv = np.divide(psdDoubleStarMod, psdSingleStarMod)    
 
     return psdDeconv
+
+# deconv1()
+#
+# Deconvolve a single reference star from binary star.
+#  This method adds a small value to single star image to
+#  prevent divide by zero problems
+#
+# Args:
+#  psdDoubleStar : numpy array of average PSD of double star
+#  psdSingleStar : numpy array of average PSD of single star
+#
+# Returns deconvolved PSD
+def deconv1(psdDoubleStar, psdSingleStar, constant = 0.001):
+
+    # Divide double PSD by modified reference single PSD to deconvolve
+    psdDeconv = np.divide(psdDoubleStar, (psdSingleStar+constant))    
+
+    return psdDeconv
