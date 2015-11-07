@@ -218,3 +218,4 @@ def deconv1(psdDoubleStar, psdSingleStar, constant = 0.001):
     psdDeconv = np.divide(psdDoubleStar, (psdSingleStar+constant))    
 
     return psdDeconv
+
