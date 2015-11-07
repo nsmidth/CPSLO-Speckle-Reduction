@@ -27,11 +27,7 @@ file_path = filedialog.askopenfilenames(title="Please select the FITS files to b
 # Loop through each file
 for file in file_path:
     # Checking if file is a .fits
-    fileExt = file.split('.')   # Splitting by periods to find file extension
-    indexExt = ( np.shape(fileExt)[0] - 1 ) # File ext is last string
-    fileExt = fileExt[indexExt]
-
-    if (fileExt == "fits"): # If filetype is FITS, preprocess
+    if (os.path.splitext(file)[1] == ".fits"): # If filetype is FITS, preprocess
         # Print message for user
         print("Processing file: ",file)
 
