@@ -73,9 +73,6 @@ def preprocess(fitsData):
             # Take FFT of images, this gives us complex numbers
             fftStar = fft2(imgStar)
 
-            # Normalizing FFT
-            fftStar = np.divide(fftStar,fftStar.size)
-
             # Calculate 2D power spectrum
             # This gives us only real values as 
             absStar = np.abs( fftStar)
@@ -86,6 +83,11 @@ def preprocess(fitsData):
 
         # Divide by # of images to calculate average
         psdAvg = np.divide(psdSum,fitsData.shape[0])
+
+        # Normalizing FFT
+        # Divide by (#pixels)^2 after calculating PSD rather than
+        #  each FFT(image) by #pixels in order to execute quicker
+        psdAvg = np.divide(psdAvg, (psdAvg.size)**2)
 
     #Otherwise if FITS data is only one image
     elif (len(fitsData.shape) == 2):
