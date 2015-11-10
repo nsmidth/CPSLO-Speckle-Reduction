@@ -69,9 +69,16 @@ def preprocess(fitsData):
             # FFT function requires little-endian data, so casting it
             imgStar = img.astype(float)
 
+            # Normalizing pixels to between 0 and 1
+            # Assuming use of Andor Luca-R camera, 14 bit pixels
+            imgStar_norm = np.divide(imgStar, 16383)
+
             ## Preprocessing of data
             # Take FFT of images, this gives us complex numbers
-            fftStar = fft2(imgStar)
+            fftStar = fft2(imgStar_norm)
+
+            # Normalizing FFT
+            fftStar = np.divide(fftStar,fftStar.size)
 
             # Calculate 2D power spectrum
             # This gives us only real values as 
@@ -89,9 +96,16 @@ def preprocess(fitsData):
         # FFT function requires little-endian data, so casting it
         imgStar = fitsData.astype(float)
 
+        # Normalizing pixels to between 0 and 1
+        # Assuming use of Andor Luca-R camera, 14 bit pixels
+        imgStar_norm = np.divide(imgStar, 16383)
+
         ## Preprocessing of data
         # Take FFT of images, this gives us complex numbers
-        fftStar = fft2(imgStar)
+        fftStar = fft2(imgStar_norm)
+
+        # Normalizing FFT
+        fftStar = np.divide(fftStar,fftStar.size)
 
         # Calculate 2D power spectrum
         # This gives us only real values as 
@@ -109,6 +123,11 @@ def preprocess(fitsData):
 #
 # Returns autocorrelation image
 def postprocess( psdAvg ):
+    # Because we normalized after FFT by multiplying by 1/N^2, and ifft
+    #  function does this as well, we need to multiply by N^2 before ifft
+    #  to prevent performing normalization twice
+    psdAvg = psdAvg*(psdAvg.size)
+    
     # Do iFFT on PSD's, bringing back to spatial domain
     # This should give us the autocorrelations of original images
     acorrStar = ifft2(psdAvg)
