@@ -68,14 +68,10 @@ def preprocess(fitsData):
 
             # FFT function requires little-endian data, so casting it
             imgStar = img.astype(float)
-
-            # Normalizing pixels to between 0 and 1
-            # Assuming use of Andor Luca-R camera, 14 bit pixels
-            imgStar_norm = np.divide(imgStar, 16383)
-
+            
             ## Preprocessing of data
             # Take FFT of images, this gives us complex numbers
-            fftStar = fft2(imgStar_norm)
+            fftStar = fft2(imgStar)
 
             # Normalizing FFT
             fftStar = np.divide(fftStar,fftStar.size)
@@ -96,13 +92,9 @@ def preprocess(fitsData):
         # FFT function requires little-endian data, so casting it
         imgStar = fitsData.astype(float)
 
-        # Normalizing pixels to between 0 and 1
-        # Assuming use of Andor Luca-R camera, 14 bit pixels
-        imgStar_norm = np.divide(imgStar, 16383)
-
         ## Preprocessing of data
         # Take FFT of images, this gives us complex numbers
-        fftStar = fft2(imgStar_norm)
+        fftStar = fft2(imgStar)
 
         # Normalizing FFT
         fftStar = np.divide(fftStar,fftStar.size)
