@@ -43,9 +43,8 @@ psdDoubleStar = fitsDoubleStar.astype(float)
 psdSingleStar = fitsSingleStar.astype(float)
 
 # Perform deconvolution on images
-constant = 0.001
+constant = 1E-15
 psdDeconv1 = deconv1(psdDoubleStar, psdSingleStar, constant)
-#psdDeconv1 = psdDoubleStar/psdSingleStar
 
 # Perform postprocessing on images
 acorrSingleStar = postprocess( psdSingleStar )
@@ -56,7 +55,7 @@ acorrDeconv1 = postprocess( psdDeconv1 )
 printImg = input("Print star images (y/n)?   ")
 if (printImg.lower() == "y"):
     # Figure 1 shows PSD plots
-    plt.figure(num=1, figsize=(10,3), dpi=128)
+    plt.figure(num=1, figsize=(12,3), dpi=128)
     plt.subplot(1,3,1)
     plt.title("PSD Reference")
     plt.imshow(np.log10(fftshift(psdSingleStar)))
@@ -73,7 +72,7 @@ if (printImg.lower() == "y"):
     plt.colorbar()
 
     # Figure 2 shows Acorr Plots
-    plt.figure(num=2, figsize=(10,3), dpi=128)
+    plt.figure(num=2, figsize=(12,3), dpi=128)
     plt.subplot(1,3,1)
     plt.title("Acorr Reference")
     plt.imshow(acorrSingleStar)

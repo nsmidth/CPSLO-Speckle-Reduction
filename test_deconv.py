@@ -58,6 +58,11 @@ print("d3 = wiener filter autoccorrelation model approximation")
 fitsData = fits_import("/home/niels/Desktop/KP331.fits")
 fitsAvg = np.average(fitsData, axis=0)
 
+plt.figure()
+plt.imshow(fitsAvg)
+plt.colorbar()
+plt.title("Average of 1000 Images")
+
 # Looking at only the noise of image
 
 
