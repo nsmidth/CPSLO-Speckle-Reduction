@@ -9,8 +9,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.fftpack import fft2,ifft2, fftshift
-
 from astropy.io import fits
+
 
 # fits_import()
 # Queries user for FITS file to import, imports FITS file,
@@ -232,3 +232,52 @@ def deconv1(psdDoubleStar, psdSingleStar, constant = 0.001):
 
     return psdDeconv
 
+# circ_filter1()
+#
+# Create a frequency domain filter image
+#  Rotates a 1D filter function around the (0,0) point
+#  in order to turn it into a 2D filter
+#
+# Args:
+#  radius : Radius of filter, all zeros outside this radius
+#  size : Dim of square filter, set as same as image to be filtered
+#  filter_fn : Takes single argument (radius), returns a single
+#   number, the freq response at that radius/freq
+#
+# Returns filter image
+def circ_filter1(radius, size, filter_fn):
+    
+    # Returns radius of pixel, as given in x and y coordinates
+    def pixel_radius(x,y):
+        radius = np.power( (np.power(x,2)+np.power(y,2)), 0.5 )
+        return radius
+    
+    # Check if filter's radius is too large for defined size
+    if (radius > (size/2.0)):
+        print("Radius is larger than half the image size")
+        sys.exit()
+    
+    # Center of image indices, where filter will be centered
+    center = (size-1)/2.0
+    
+    # Image indices for looping through area of image with 
+    #  the filter image
+    edges = {"start":0,
+             "end":0}
+    edges["start"]=np.floor(center-radius)
+    edges["end"]=np.ceil(center+radius)
+    
+    # Create Empty 2D array to hold pixel values
+    image = np.zeros((size,size))
+    
+    # Loop through all pixels within square to draw circle
+    # Loop through all rows
+    for row in np.arange(edges['start'],edges['end']+1):
+        # Loop through all columns of row
+        for column in np.arange(edges['start'],edges['end']+1):
+            # Check if pixel is within circle's radius
+            pixelDist = pixel_radius( (row-center),(column-center) )
+            if (pixelDist < radius):
+                image[row,column] = filter_fn(pixelDist)
+    
+    return image
