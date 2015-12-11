@@ -283,6 +283,96 @@ def circ_filter1(radius, size, filter_fn):
     
     return image
 
-# lpf_gaus()
+
+# filter_interference()
 #
-# Create a Gaussian LPF 
+# Perform interference filtering on image. Center pixels (512/2=256) are
+#  replaced with average of two adjecant pixels
+#
+# Args:
+#  imgF : frequency domain image to be filtered
+#
+# Returns filtered image
+#
+def filter_interference(imgF):
+   
+    # Copy image to be filtered
+    imgF_int = np.array(imgF)
+    
+    # Critical dimensions of image
+    image_size = imgF_int.shape[0]
+    int_index = image_size/2.0
+    bad_pixels = np.array((int_index + 1, int_index - 1))
+
+    # Perform filtering on vertical interference
+    for row in np.arange(image_size):
+        good_pixels_avg = np.average(imgF[row,(bad_pixels[0], bad_pixels[1])])
+        imgF_int[row,256]=good_pixels_avg       
+    
+    # Perform filtering on horizontal interference
+    for column in np.arange(512):
+        good_pixels_avg = np.average(imgF[(bad_pixels[0], bad_pixels[1]),column])
+        imgF_int[256,column]=good_pixels_avg  
+        
+    return imgF_int
+
+# filter_lpf()
+#
+# Performs a gaussian lowpass filter on an input image, of selectable radius
+#
+# Args:
+#  imgF : Frequency domain image to be filtered
+#  lpf_rad : std_dev of gaussian =~ radius of filter
+#
+# Returns filtered image
+#
+def filter_lpf(imgF, lpf_rad):
+
+    image_size = imgF.shape[0]
+    circle_radius = (image_size/2)-2
+    
+    # Define gaussian function
+    def filter_fn_lpf(radius):
+        return np.exp(-(np.power(radius,2)/(2*np.power(lpf_rad,2))))
+
+    # Calculate 2D Gaussian filter
+    lpfF = circ_filter1(radius = circle_radius, size = image_size, filter_fn = filter_fn_lpf)
+    
+    # Return filtered fn
+    return np.multiply(lpfF,imgF)
+
+# filter_hpf()
+#
+# Performs a gaussian highpass filter on an input image, of selectable radius & amplitude
+#
+# Args:
+#  imgF : Frequency domain image to be filtered
+#  hpf_rad : std_dev of gaussian =~ radius of filter
+#  hpf_amplitude : Number between 0 and 1. Limits minimum of filter.
+#   A value of 1 gives a minimum of 0 in the LPF
+#   A value of 0.8 gives a minimum greater than 0 in the HPF 
+#
+# Returns filtered image
+## Perform HPF
+def filter_hpf(imgF, hpf_rad, hpf_amplitude):
+
+    image_size = imgF.shape[0]
+    circle_radius = (image_size/2)-2
+    
+    # Define LP gaussian function
+    def filter_fn_hpf(radius):  
+        return np.multiply(hpf_amplitude,np.exp(-(np.power(radius,2)/(2*np.power(hpf_rad,2)))))
+
+    # Calculate 2D Gaussian filter
+    # Generate lowpass filter to serve as inverse of highpass filter
+    hpf = circ_filter1(radius = circle_radius, size = image_size, filter_fn = filter_fn_hpf)
+
+    # Generate array of 1's to be subtracted from
+    ones = np.zeros((image_size,image_size))
+    ones.fill(1)
+
+    # Calculate 1 - LP, which is HP
+    hpfF = np.subtract(ones,hpf)
+    
+    # Return Filtered
+    return np.multiply(hpfF,imgF)
