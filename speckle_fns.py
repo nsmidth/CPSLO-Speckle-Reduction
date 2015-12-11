@@ -257,8 +257,9 @@ def circ_filter1(radius, size, filter_fn):
         print("Radius is larger than half the image size")
         sys.exit()
     
-    # Center of image indices, where filter will be centered
-    center = (size-1)/2.0
+    # Center of FFT image indices, where filter will be centered.
+    # Ex: For a 512,512 image, the circle should be centered at 256,256
+    center = (size)/2.0
     
     # Image indices for looping through area of image with 
     #  the filter image
@@ -281,3 +282,7 @@ def circ_filter1(radius, size, filter_fn):
                 image[row,column] = filter_fn(pixelDist)
     
     return image
+
+# lpf_gaus()
+#
+# Create a Gaussian LPF 
