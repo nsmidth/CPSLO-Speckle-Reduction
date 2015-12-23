@@ -1,6 +1,6 @@
 """ 
 
-    Attempting to recreate PS3's Speckle Processing
+    Functions for processing speckle images
 
     Niels Smidth - 10/16/15
 """
@@ -376,3 +376,35 @@ def filter_hpf(imgF, hpf_rad, hpf_amplitude):
     
     # Return Filtered
     return np.multiply(hpfF,imgF)
+
+# fits_view()
+# User enters FITS file and which image in cube to be returned
+#  and function returns this data
+#
+# Args:
+#  file_path : filepath of FITS file to be opened
+#  image_index : index of image to be displayed
+#  printInfo : set to TRUE to print FITS file info
+#  printHeaders : set to TRUE to print FITS file headers
+#
+# Returns data block from primary HDU
+#
+def fits_view(file_path, image_index, printInfo = True, printHeaders = False):
+    
+    HDUList = fits.open(file_path)  # Open FITS Data
+
+    # Print FITS File Info & Headers
+    if (printInfo == True):
+        HDUList.info()
+        print()
+
+    if (printHeaders == True):
+        print("Headers:")
+        print(repr(HDUList[0].header))
+
+    # Save data in FITS cube to local variable, then close FITS file
+    fitsData = HDUList[0].data[image_index]
+    HDUList.close()
+
+    # Return FITS data
+    return fitsData
