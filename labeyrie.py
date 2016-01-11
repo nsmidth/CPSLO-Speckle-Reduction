@@ -1,6 +1,5 @@
 # Module for performing full Labeyrie deconvolution of FITS files
 
-
 # If preprocessing:
 # Import binary star FITS
 # Preprocess it
@@ -22,4 +21,4 @@
 
 # iFFT to get autocorrelogram
 
-# Return autocorrelogram
+# Return autocorrelogram as PNG or FIT
