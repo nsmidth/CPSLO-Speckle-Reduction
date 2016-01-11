@@ -1,6 +1,7 @@
 # Classes used in labeyrie speckle processing
 
 ## Target Class: Holds data for a Reference or Binary Star
+class target(): 
 # fits: Holds data from FITS file
 # fitsFilename: Holds filename of FITS file
 # fitsImport(): Import FITS data from filename
@@ -8,10 +9,12 @@
 
 # psd: Holds PSD of target
 # psdFilename: Holds filename of PSD file
-# psdimport(): Import PSD data (from a FITS file)
+# psdImport(): Import PSD data (from a FITS file)
 # psdCalc(): Calculate PSD of target
 # psdView(): View PSD
+	pass
 
+class deconvolved():
 ## Deconvolved Class: Holds data for devonvolved targets
 # psd: Holds deconvolved PSD
 # psdDeconvolve(binary, reference): Deconvolve PSDs 
@@ -24,6 +27,7 @@
 # acorr: Holds autocorrelation of PSD
 # acorrCalc: Calculate autocorrelation from filtered PSD
 # acorrView(): View autocorrelation
+	pass
 
 ## Need another class to hold all this centroid finding stuff
 # acorrMarked: Autocorrelation with user markings
