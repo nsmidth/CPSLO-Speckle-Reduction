@@ -6,15 +6,20 @@ from labeyrieClasses import target
 import tkinter as tk
 from tkinter import filedialog
 
+import numpy as np
+import matplotlib.pyplot as plt 
+
+# Raw data target object
+raw = target()
+
 # Prompt for FITS file locations
 fitsFileNames = filedialog.askopenfilenames(title="Select FITS files for processing")
+
 
 # Loop through each fileName
 for fitsFileName in fitsFileNames:
     # Checking if fitsFileName is a .fits
     if (os.path.splitext(fitsFileName)[1] == ".fits"): # If filetype is FITS, preprocess
-        # Print message for user
-        print("Processing file: ",fitsFileName)
 
         # Create new filename      
         psdFileName = os.path.splitext(fitsFileName)[0]
@@ -38,19 +43,27 @@ for fitsFileName in fitsFileNames:
         if (os.path.exists(psdFileName)): # if no good filename found
             # Don't generate file 
             print("No processed file generated")
-            
-        else: # if good filename found
+          
+          
+            # If good filename found    
+        else:			
+            #print("Processing file: ", fitsFileName)
+            #print("Creating file: ", psdFileName)
+                      
             # Import FITS file
-           
+            raw.fitsFileName = fitsFileName
+            raw.psdFileName = psdFileName
+            raw.fits = raw.fitsImport()
+            raw.fitsView(1)
 
             # Preprocess FITS data
-            
+            #raw.preprocess()
             
             # Create new FITS file 
-            
+            #raw.fitsExport()
             
             #Print message for user
-            print("Created ", psdFileName)
+            #print("Done processing ", psdFileName)
 
     else: # If filetype is not FITS, don't preprocess
         # Print message for user
