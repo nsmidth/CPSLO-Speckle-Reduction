@@ -13,8 +13,10 @@ import matplotlib.pyplot as plt
 raw = target()
 
 # Prompt for FITS file locations
-fitsFileNames = filedialog.askopenfilenames(title="Select FITS files for processing")
-
+#fitsFileNames = filedialog.askopenfilenames(title="Select FITS files for processing")
+# Debug
+fitsFileNames = []
+fitsFileNames.append('/home/niels/Documents/FITS/KP330.fits')
 
 # Loop through each fileName
 for fitsFileName in fitsFileNames:
