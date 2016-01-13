@@ -19,12 +19,10 @@ class target():
     #  filePath = file path of FITS file
     #  printInfo = print FITS file information?
     #  printHeaders = print FITS file headers?
-    def fitsImport(self, filePath=None, printInfo = True, printHeaders = False): 
-        # Use fitsFileName as filePath by default
-        if filePath == None:
-            filePath = self.fitsFileName
+    def fitsImport(self, printInfo = True, printHeaders = False):
+
         # Open FITS Data
-        HDUList = fits.open(filePath)  
+        HDUList = fits.open(self.fitsFileName)
         # Print FITS File Info & Headers
         if (printInfo == True):
             print(HDUList.info())
@@ -34,8 +32,8 @@ class target():
         # Save data in FITS cube to local variable, then close FITS file
         fitsData = HDUList[0].data
         HDUList.close()
-        # Return FITS data
-        return fitsData
+        # Save fits data
+        self.fits = fitsData
 
     # View an image from original FITS
     #  imNum = index of image to be printed/returned
@@ -45,8 +43,32 @@ class target():
         plt.title('FITS Image ' + str(imNum))
         plt.show()
 
-    ## fitsExport(): Export FITS file of a np array
+    ## fitsExport(): Export FITS file of fits data
+    def fitsExport(self):
+
+        # Create PrimaryHDU object with data
+        hdu = fits.PrimaryHDU(self.fits)
+        # Create HDUList object w/ PrimaryHDU
+        hdulist = fits.HDUList([hdu])
+        # Write to new file
+        hdulist.writeto(self.fitsFileName)
+
     ## psdImport(): Import PSD data (from a FITS file)
+    def psdImport(self, printInfo = True, printHeaders = False):
+
+        # Open FITS Data
+        HDUList = fits.open(self.psdFileName)
+        # Print FITS File Info & Headers
+        if (printInfo == True):
+            print(HDUList.info())
+        if (printHeaders == True):
+            print("Headers:")
+            print(repr(HDUList[0].header))
+        # Save data in FITS cube to local variable, then close FITS file
+        psdData = HDUList[0].data
+        HDUList.close()
+        # Save fits data
+        self.psd = psdData
 
     def psdCalc(self):
     # Calculate PSD of FITS data
@@ -103,6 +125,14 @@ class target():
         plt.title('PSD Image ')
         plt.show()
 
+    ## psdExport(): Export FITS file of psd
+    def psdExport(self):
+        # Create PrimaryHDU object with data
+        hdu = fits.PrimaryHDU(self.psd)
+        # Create HDUList object w/ PrimaryHDU
+        hdulist = fits.HDUList([hdu])
+        # Write to new file
+        hdulist.writeto(self.psdFileName)
 
 class deconvolved():
 ## Deconvolved Class: Holds data for devonvolved targets

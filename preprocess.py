@@ -13,12 +13,12 @@ import matplotlib.pyplot as plt
 raw = target()
 
 # Prompt for FITS file locations
-#fitsFileNames = filedialog.askopenfilenames(title="Select FITS files for processing")
+fitsFileNames = filedialog.askopenfilenames(title="Select FITS files for processing")
 # Debug
-fitsFileNames = []
-fitsFileNames.append('/home/niels/Documents/FITS/KP330.fits')
-#fitsFileNames.append('/home/niels/Documents/FITS/KP331.fits')
-#fitsFileNames.append('/home/niels/Documents/FITS/KP332.fits')
+#fitsFileNames = []
+#fitsFileNames.append('/home/niels/Desktop/KP330.fits')
+#fitsFileNames.append('/home/niels/Desktop/KP331.fits')
+#fitsFileNames.append('/home/niels/Desktop/KP332.fits')
 
 # Loop through each fileName
 for fitsFileName in fitsFileNames:
@@ -57,14 +57,13 @@ for fitsFileName in fitsFileNames:
             # Import FITS file
             raw.fitsFileName = fitsFileName
             raw.psdFileName = psdFileName
-            raw.fits = raw.fitsImport(printInfo=False)
+            raw.fitsImport(printInfo=False)
 
-            # Preprocess FITS data
+            # Process FITS data
             raw.psdCalc()
-            raw.psdView()
             
             # Create new FITS file 
-            #raw.fitsExport()
+            raw.psdExport()
             
             #Print message for user
             print("Done processing ", psdFileName)
