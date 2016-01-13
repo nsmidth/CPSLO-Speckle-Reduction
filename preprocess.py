@@ -17,6 +17,8 @@ raw = target()
 # Debug
 fitsFileNames = []
 fitsFileNames.append('/home/niels/Documents/FITS/KP330.fits')
+#fitsFileNames.append('/home/niels/Documents/FITS/KP331.fits')
+#fitsFileNames.append('/home/niels/Documents/FITS/KP332.fits')
 
 # Loop through each fileName
 for fitsFileName in fitsFileNames:
@@ -47,33 +49,33 @@ for fitsFileName in fitsFileNames:
             print("No processed file generated")
           
           
-            # If good filename found    
+        # If good filename found
         else:			
-            #print("Processing file: ", fitsFileName)
-            #print("Creating file: ", psdFileName)
+            print("Processing file: ", fitsFileName)
+            print("Creating file: ", psdFileName)
                       
             # Import FITS file
             raw.fitsFileName = fitsFileName
             raw.psdFileName = psdFileName
-            raw.fits = raw.fitsImport()
-            raw.fitsView(1)
+            raw.fits = raw.fitsImport(printInfo=False)
 
             # Preprocess FITS data
-            #raw.preprocess()
+            raw.psdCalc()
+            raw.psdView()
             
             # Create new FITS file 
             #raw.fitsExport()
             
             #Print message for user
-            #print("Done processing ", psdFileName)
+            print("Done processing ", psdFileName)
+            print()
+            print()
 
     else: # If filetype is not FITS, don't preprocess
         # Print message for user
         print("The following file is not .fits: ", fitsFileName)
-
-print()
-print()
-    
+        print()
+        print()
 
     
 
