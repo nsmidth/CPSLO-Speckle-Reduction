@@ -12,6 +12,10 @@ import matplotlib.pyplot as plt
 # Raw data target object
 raw = target()
 
+# Start up Tkinter
+root = tk.Tk()
+root.withdraw()
+
 # Prompt for FITS file locations
 fitsFileNames = filedialog.askopenfilenames(title="Select FITS files for processing")
 # Debug
