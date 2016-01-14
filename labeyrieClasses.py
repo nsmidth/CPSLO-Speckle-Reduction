@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.fftpack import fft2, ifft2, fftshift
 from astropy.io import fits
+import sys, os
 
 
 # Target Class: Holds data for a Reference or Binary Star
@@ -56,6 +57,11 @@ class target():
     ## psdImport(): Import PSD data (from a FITS file)
     def psdImport(self, printInfo = True, printHeaders = False):
 
+        # Check if input file is .fits
+        if (os.path.splitext(self.psdFileName)[1] != ".fits"):
+            # Exit program if not FITS
+            sys.exit(("ERROR: " + self.psdFileName + " is not .fits"))
+
         # Open FITS Data
         HDUList = fits.open(self.psdFileName)
         # Print FITS File Info & Headers
@@ -64,6 +70,11 @@ class target():
         if (printHeaders == True):
             print("Headers:")
             print(repr(HDUList[0].header))
+
+        # Check that input psd FITS is 2D
+        if (len(np.shape(HDUList[0].data)) > 2):
+            sys.exit(("ERROR: " + self.psdFileName + " contains more than one image"))
+
         # Save data in FITS cube to local variable, then close FITS file
         psdData = HDUList[0].data
         HDUList.close()
@@ -118,7 +129,7 @@ class target():
 
         self.psd = fftshift(psdAvg)
 
-	# psdView(): View PSD
+    # psdView(): View PSD
     def psdView(self):
         plt.figure()
         plt.imshow(np.log10(self.psd))
