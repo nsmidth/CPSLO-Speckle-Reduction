@@ -22,6 +22,11 @@ class target():
     #  printHeaders = print FITS file headers?
     def fitsImport(self, printInfo = True, printHeaders = False):
 
+        # Check if input file is .fits
+        if (os.path.splitext(self.fitsFileName)[1] != ".fits"):
+            # Exit program if not FITS
+            sys.exit(("ERROR: " + self.fitsFileName + " is not .fits"))
+
         # Open FITS Data
         HDUList = fits.open(self.fitsFileName)
         # Print FITS File Info & Headers
