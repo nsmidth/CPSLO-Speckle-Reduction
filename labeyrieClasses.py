@@ -116,12 +116,12 @@ class target():
             # Normalizing FFT
             psdAvg = np.divide(psdImg, (psdImg.size)**2)
 
-        self.psd = psdAvg
+        self.psd = fftshift(psdAvg)
 
 	# psdView(): View PSD
     def psdView(self):
         plt.figure()
-        plt.imshow(np.log10(fftshift(self.psd)))
+        plt.imshow(np.log10(self.psd))
         plt.title('PSD Image ')
         plt.show()
 
