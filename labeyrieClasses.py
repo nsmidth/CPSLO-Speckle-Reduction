@@ -150,11 +150,23 @@ class target():
         # Write to new file
         hdulist.writeto(self.psdFileName)
 
-class deconvolved():
 ## Deconvolved Class: Holds data for devonvolved targets
-# psd: Holds deconvolved PSD
-# psdDeconvolve(binary, reference): Deconvolve PSDs 
-# psdView(): View PSD
+class deconvolved():
+    psd = None          # Holds deconvolved PSD
+    psdFiltered = None  # Holds filtered PSD
+    acorr = None        # Holds autocorrelation of PSD
+
+    # Deconvolve PSDs
+    def psdDeconvolve(self, psdBinary, psdReference, constant):
+        # Divide double PSD by modified reference single PSD to deconvolve
+        self.psd = np.divide(psdBinary, (psdReference+constant))
+
+    # View PSD
+    def psdView(self):
+        plt.figure()
+        plt.imshow(np.log10(self.psd))
+        plt.title('PSD Image')
+        plt.show()
 
 # psdFiltered: Holds filtered PSD
 # psdFilter(LPF, HPF, Interference): Filters PSD to make PSDFiltered
@@ -163,7 +175,7 @@ class deconvolved():
 # acorr: Holds autocorrelation of PSD
 # acorrCalc: Calculate autocorrelation from filtered PSD
 # acorrView(): View autocorrelation
-	pass
+
 
 ## Need another class to hold all this centroid finding stuff
 # acorrMarked: Autocorrelation with user markings
