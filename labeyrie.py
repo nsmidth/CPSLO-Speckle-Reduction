@@ -37,7 +37,7 @@ soln.psdView()
 
 # Perform filtering on output star object
 #soln.psdFilter(lpf = 15, interference = TRUE)
-soln.psdFilter(interference = True)
+soln.psdFilter(lpfRadius = 25, interference=True)
 soln.psdFilteredView()
 
 # Get autocorrelogram

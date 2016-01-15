@@ -172,7 +172,7 @@ class deconvolved():
     # psdFilter(LPF, HPF, Interference): Filters PSD to make PSDFiltered
     # LPF and HPF are gaussian shape
     # Interference filter only works for images with even number of pixels to a side
-    def psdFilter(self, lpf_radius=None, hpf_radius=None, interference=False):
+    def psdFilter(self, lpfRadius=None, hpfRadius=None, interference=False):
 
         imgSize = np.shape(self.psd)[0] # Calculate dimension of image
         imgCenter = imgSize/2         # Center index of image
@@ -181,11 +181,27 @@ class deconvolved():
         self.psdFiltered = np.array(self.psd)
 
         # Perform LPF filtering if user selected a radius
-        if (lpf_radius != None):
-            pass
+        if (lpfRadius != None):
+
+            # Save present input values
+            psdTemp = np.array(self.psdFiltered)
+
+            # Loop through all Y
+            for y in np.arange(0,imgCenter+1):
+                # Loop through all X
+                for x in np.arange(0, imgCenter+1):
+                    # Calculate distance of point to center of image
+                    radius = np.linalg.norm((y-imgCenter,x-imgCenter))
+                    # Calculate filter's value at this radius
+                    filterH = np.exp(-(np.power(radius,2)/(2*np.power(lpfRadius,2))))
+                    # Multiply filter's value by this point and the mirrored locations in image
+                    self.psdFiltered[y,x] = np.multiply(psdTemp[y,x],filterH)
+                    self.psdFiltered[y,imgSize-1-x] = np.multiply(psdTemp[y,imgSize-1-x],filterH)
+                    self.psdFiltered[imgSize-1-y,x] = np.multiply(psdTemp[imgSize-1-y,x],filterH)
+                    self.psdFiltered[imgSize-1-y,imgSize-1-x] = np.multiply(psdTemp[imgSize-1-y,imgSize-1-x],filterH)
 
         # Perform HPF filtering if user selected a radius
-        if (hpf_radius != None):
+        if (hpfRadius != None):
             pass
 
         # Perform interference filtering if user enabled it
@@ -195,13 +211,13 @@ class deconvolved():
 
             # Perform filtering on vertical interference
             for y in np.arange(imgSize):
-                avg = np.average((self.psd[y,imgCenter+1],self.psd[y,imgCenter-1]))
-                psdTemp[y,imgCenter]=avg
+                avg = np.average((psdTemp[y,imgCenter+1],psdTemp[y,imgCenter-1]))
+                self.psdFiltered[y,imgCenter]=avg
 
             # Perform filtering on horizontal interference
             for x in np.arange(imgSize):
-                avg = np.average((self.psd[imgCenter+1,x],self.psd[imgCenter-1,x]))
-                psdTemp[imgCenter,x]=avg
+                avg = np.average((psdTemp[imgCenter+1,x],psdTemp[imgCenter-1,x]))
+                self.psdFiltered[imgCenter,x]=avg
 
             self.psdFiltered=psdTemp
 
