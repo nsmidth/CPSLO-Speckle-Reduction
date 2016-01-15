@@ -168,11 +168,52 @@ class deconvolved():
         plt.title('PSD Image')
         plt.show()
 
-# psdFiltered: Holds filtered PSD
-# psdFilter(LPF, HPF, Interference): Filters PSD to make PSDFiltered
-# psdFilteredView(): View Filtered PSD
 
-# acorr: Holds autocorrelation of PSD
+    # psdFilter(LPF, HPF, Interference): Filters PSD to make PSDFiltered
+    # LPF and HPF are gaussian shape
+    # Interference filter only works for images with even number of pixels to a side
+    def psdFilter(self, lpf_radius=None, hpf_radius=None, interference=False):
+
+        imgSize = np.shape(self.psd)[0] # Calculate dimension of image
+        imgCenter = imgSize/2         # Center index of image
+
+        # Start filtered output as unfiltered psd
+        self.psdFiltered = np.array(self.psd)
+
+        # Perform LPF filtering if user selected a radius
+        if (lpf_radius != None):
+            pass
+
+        # Perform HPF filtering if user selected a radius
+        if (hpf_radius != None):
+            pass
+
+        # Perform interference filtering if user enabled it
+        if (interference == True):
+            # Copy image to be filtered
+            psdTemp = np.array(self.psdFiltered)
+
+            # Perform filtering on vertical interference
+            for y in np.arange(imgSize):
+                avg = np.average((self.psd[y,imgCenter+1],self.psd[y,imgCenter-1]))
+                psdTemp[y,imgCenter]=avg
+
+            # Perform filtering on horizontal interference
+            for x in np.arange(imgSize):
+                avg = np.average((self.psd[imgCenter+1,x],self.psd[imgCenter-1,x]))
+                psdTemp[imgCenter,x]=avg
+
+            self.psdFiltered=psdTemp
+
+
+    # View Filtered PSD
+    def psdFilteredView(self):
+        plt.figure()
+        plt.imshow(np.log10(self.psdFiltered))
+        plt.title('Filtered PSD Image')
+        plt.show()
+
+
 # acorrCalc: Calculate autocorrelation from filtered PSD
 # acorrView(): View autocorrelation
 
