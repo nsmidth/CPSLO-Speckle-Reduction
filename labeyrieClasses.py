@@ -230,8 +230,31 @@ class deconvolved():
         plt.show()
 
 
-# acorrCalc: Calculate autocorrelation from filtered PSD
-# acorrView(): View autocorrelation
+    # Calculate autocorrelation from filtered PSD
+    def acorrCalc(self):
+        # Because we normalized after FFT by multiplying by 1/N^2, and ifft
+        #  function does this as well, we need to multiply by N^2 before ifft
+        #  to prevent performing normalization twice
+        self.acorr = self.psdFiltered*(self.psdFiltered.size)
+
+        # Do iFFT on PSD's, bringing back to spatial domain
+        # This should give us the autocorrelations of original images
+        self.acorr = ifft2(self.acorr)
+
+        # Taking iFFT of PSD (all real values) results in complex valued output
+        #  Must view the magnitude of the output
+        #  Doing FFTshift to move eyes of autocorrelation near center
+        # Taking iFFT of PSD (all real values) results in complex valued output
+        #  Must view the magnitude of the output
+        self.acorr = np.abs(fftshift(self.acorr))
+
+
+    # View autocorrelation
+    def acorrView(self):
+        plt.figure()
+        plt.imshow(self.acorr)
+        plt.title('Autocorrelation')
+        plt.show()
 
 
 ## Need another class to hold all this centroid finding stuff
@@ -242,6 +265,7 @@ class deconvolved():
 # centroidExpected[x,y]: Expected location of secondary
 # centroidEstimate(): Estimate centroids of image
 # centroidCalculate(x,y,radius): Calculate centroid within area
+
 
 
 
