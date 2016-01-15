@@ -8,7 +8,7 @@ Creating a program for reduction of binary star FITS images for astrometric and 
 - labeyrieClasses : Holds all classes/functions used in these scripts
 
 Starting from scratch, one would reduce speckle data by using the following procedure:
-1) Run preprocess.py script.
-2) Select all .fits speckle data and run. This produces _PSD.fits files in the same folder as the original data
-3) Run labeyrie.py script
-4) Select a binary/reference star pair and run. This displays the filtered PSD and autocorrelation of this pair. 
+1. Run preprocess.py script.
+2. Select all .fits speckle data and run. This produces _PSD.fits files in the same folder as the original data
+3. Run labeyrie.py script
+4. Select a binary/reference star pair and run. This displays the filtered PSD and autocorrelation of this pair. 
