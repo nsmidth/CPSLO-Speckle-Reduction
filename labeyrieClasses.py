@@ -7,7 +7,6 @@ from scipy.fftpack import fft2, ifft2, fftshift
 from astropy.io import fits
 import sys, os
 
-
 # Target Class: Holds data for a Reference or Binary Star
 class target():
 
@@ -154,7 +153,9 @@ class target():
 class deconvolved():
     psd = None          # Holds deconvolved PSD
     psdFiltered = None  # Holds filtered PSD
+    psdFilteredFileName = None # Holds filtered PSD filename
     acorr = None        # Holds autocorrelation of PSD
+
 
     # Deconvolve PSDs
     def psdDeconvolve(self, psdBinary, psdReference, constant):
@@ -266,6 +267,17 @@ class deconvolved():
 # centroidEstimate(): Estimate centroids of image
 # centroidCalculate(x,y,radius): Calculate centroid within area
 
+# Class to hold an array of data
+# Built in methods for importing/exporting/viewing the data
+class fitsData():
+    data = None # Holds data
+    fileName = None # Holds filename for import/export
 
+    def read(self,numDimensions): # Imports FITS file
+        pass
 
+    def write(self): # Write FITS file
+        pass
 
+    def view(self, log=False, title=None):
+        pass
