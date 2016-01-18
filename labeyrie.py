@@ -31,7 +31,6 @@ reference.psdImport()
 soln.psdDeconvolve(binary.psd,reference.psd,1e-12)
 
 # Perform filtering on output star object
-#soln.psdFilter(lpf = 15, interference = TRUE)
 soln.psdFilter(lpfRadius = 25, interference=True)
 
 # Get autocorrelogram
