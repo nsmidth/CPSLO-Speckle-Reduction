@@ -273,11 +273,57 @@ class fitsData():
     data = None # Holds data
     fileName = None # Holds filename for import/export
 
-    def read(self,numDimensions): # Imports FITS file
-        pass
+    def read(self, numDimensions=2, printInfo=True, printHeaders=False): # Imports FITS file
+        # Check if input file is .fits
+        if (os.path.splitext(self.fileName)[1] != ".fits"):
+            # Exit program if not FITS
+            sys.exit(("ERROR: " + self.fileName + " is not .fits"))
+
+        # Open FITS Data
+        HDUList = fits.open(self.fileName)
+        # Print FITS File Info & Headers
+        if (printInfo == True):
+            print(HDUList.info())
+        if (printHeaders == True):
+            print("Headers:")
+            print(repr(HDUList[0].header))
+
+        # Check that input psd FITS is appropriate dimension
+        if (len(np.shape(HDUList[0].data)) != numDimensions):
+            sys.exit(("ERROR: " + self.fileName + " dimensions != " + str(numDimensions)))
+
+        # Save data in FITS cube to class's data variable, then close FITS file
+        self.data = HDUList[0].data
+        HDUList.close()
 
     def write(self): # Write FITS file
-        pass
+        # Create PrimaryHDU object with data
+        hdu = fits.PrimaryHDU(self.data)
+        # Create HDUList object w/ PrimaryHDU
+        hdulist = fits.HDUList([hdu])
+        # Write to new file
+        hdulist.writeto(self.fileName)
 
-    def view(self, log=False, title=None):
-        pass
+    # View data
+    # Option to view log of data
+    # Option to select which image in 3D cube to view
+    def view(self, log=False, title=None, imNum=0):
+        plt.figure()
+        # Check for dimensionality of data
+        # If 2D, show the image
+        if len(np.shape(self.data)) == 2:
+            if (log == False):
+                plt.imshow(self.data)
+            if (log == True):
+                plt.imshow(np.log10(self.data))
+        # If 3D, show the image of selected index
+        elif len(np.shape(self.data)) == 3:
+            if (log == False):
+                plt.imshow(self.data[imNum])
+            if (log == True):
+                plt.imshow(np.log10(self.data[imNum]))
+        # If other, must be an error
+        else:
+            sys.exit("Can only view 2D or 3D data")
+        plt.title(title)
+        plt.show()
