@@ -18,17 +18,19 @@ reference = target()
 soln = deconvolved()
 
 # Prompt user for binary PSD file location
-binary.psdFileName = filedialog.askopenfilename(title="Select BINARY FITS file")
+binary.psd.fileName = filedialog.askopenfilename(title="Select BINARY FITS file")
 # Import binary star PSD FITS
-binary.psdImport()
+binary.psd.read()
+binary.psd.view(log=True)
 
 # Prompt user for reference PSD file location
-reference.psdFileName = filedialog.askopenfilename(title="Select REFERENCE FITS file")
+reference.psd.fileName = filedialog.askopenfilename(title="Select REFERENCE FITS file")
 # Import reference star PSD FITS
-reference.psdImport()
+reference.psd.read()
+reference.psd.view(log=True)
 
 # Deconvolve reference and binary stars
-soln.psdDeconvolve(binary.psd,reference.psd,1e-12)
+soln.psdDeconvolve(binary.psd.data,reference.psd.data,1e-12)
 
 # Perform filtering on output star object
 soln.psdFilter(lpfRadius = 25, interference=True)
@@ -37,5 +39,5 @@ soln.psdFilter(lpfRadius = 25, interference=True)
 soln.acorrCalc()
 
 # View Results
-soln.psdFilteredView()
-soln.acorrView()
+soln.psdFiltered.view(log=True)
+soln.acorr.view()
