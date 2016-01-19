@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.fftpack import fft2, ifft2, fftshift
 from astropy.io import fits
-import sys, os
+import sys, os, cv2
 
 # Class to hold an array of data
 # Built in methods for importing/exporting/viewing the data
@@ -128,7 +128,7 @@ class target():
 
         self.psd = fftshift(psdAvg)
 
-## Deconvolved Class: Holds data for devonvolved targets
+# Deconvolved Class: Holds data for devonvolved targets
 class deconvolved():
     # Init
     def __init__(self):
@@ -210,12 +210,40 @@ class deconvolved():
         #  Must view the magnitude of the output
         self.acorr.data = np.abs(fftshift(self.acorr.data))
 
+# Photometry class: Holds data for photometry measurements
+class photometry():
+    # Init
+    def __init__(self):
+        self.acorr = None # Raw Autocorrelation
+        self.acorrMarked = None # Marked up Autocorrelation
 
+    # Clear marked up acorr back to original acorr
+    def acorrMarkedClear(self):
 
-## Need another class to hold all this centroid finding stuff
-# acorrMarked: Autocorrelation with user markings
-# acorrMarkedBlank(): Erase Acorr
-# acorrMark(x,y,shape): Mark acorr at location with indicated shape
+        # Create blank RGB image
+        imgDim = np.shape(self.acorr)[0]
+        self.acorrMarked = np.zeros((imgDim,imgDim,3), np.uint8)
+
+        # Calculate scaled version of autocorr image
+        imgScaled = np.divide(self.acorr,np.max(self.acorr))
+        imgScaled = (np.multiply(imgScaled, 255)).astype(np.uint8)
+
+        # Fill in scaled image into each R/G/B Channel
+        for i in np.arange(3):
+            self.acorrMarked[:,:,i] = imgScaled
+
+    # Mark acorr at location with indicated shape
+    def acorrMark(self,x,y,shape,color):
+        radius = 10
+        length = 5
+        if shape == 'o':
+            cv2.circle(self.acorrMarked, (x, y), radius, color, 1)
+        elif shape == '+':
+            cv2.line(self.acorrMarked,(x-length,y),(x+length,y),color,1)
+            cv2.line(self.acorrMarked,(x,y-length),(x,y+length),color,1)
+        else:
+            print("Invalid shape input")
+
 # centroid[0,1][x,y]: Locations of centroids
 # centroidExpected[x,y]: Expected location of secondary
 # centroidEstimate(): Estimate centroids of image
