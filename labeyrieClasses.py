@@ -7,83 +7,78 @@ from scipy.fftpack import fft2, ifft2, fftshift
 from astropy.io import fits
 import sys, os
 
-# Target Class: Holds data for a Reference or Binary Star
-class target():
+# Class to hold an array of data
+# Built in methods for importing/exporting/viewing the data
+class fitsData():
+    # Init
+    def __init__(self):
+        self.data = None # Holds data
+        self.fileName = None # Holds filename for import/export
 
-    fits = None				# Holds data from FITS file
-    fitsFileName = None 	# Holds filename of FITS file
-    psd = None				# Holds PSD of target
-    psdFileName	= None		# Holds filename of PSD file
-
-    # Import FITS data from filename
-    #  filePath = file path of FITS file
-    #  printInfo = print FITS file information?
-    #  printHeaders = print FITS file headers?
-    def fitsImport(self, printInfo = True, printHeaders = False):
-
+    # Read data from FITS file
+    # Enter the number of dimensions of the FITS file to check for it on opening
+    def read(self, numDimensions=2, printInfo=True, printHeaders=False): # Imports FITS file
         # Check if input file is .fits
-        if (os.path.splitext(self.fitsFileName)[1] != ".fits"):
+        if (os.path.splitext(self.fileName)[1] != ".fits"):
             # Exit program if not FITS
-            sys.exit(("ERROR: " + self.fitsFileName + " is not .fits"))
+            sys.exit(("ERROR: " + self.fileName + " is not .fits"))
 
         # Open FITS Data
-        HDUList = fits.open(self.fitsFileName)
+        HDUList = fits.open(self.fileName)
         # Print FITS File Info & Headers
         if (printInfo == True):
             print(HDUList.info())
         if (printHeaders == True):
             print("Headers:")
             print(repr(HDUList[0].header))
-        # Save data in FITS cube to local variable, then close FITS file
-        fitsData = HDUList[0].data
+
+        # Check that input psd FITS is appropriate dimension
+        if (len(np.shape(HDUList[0].data)) != numDimensions):
+            sys.exit(("ERROR: " + self.fileName + " dimensions != " + str(numDimensions)))
+
+        # Save data in FITS cube to class's data variable, then close FITS file
+        self.data = HDUList[0].data
         HDUList.close()
-        # Save fits data
-        self.fits = fitsData
 
-    # View an image from original FITS
-    #  imNum = index of image to be printed/returned
-    def fitsView(self, imNum=0):
-        plt.figure()
-        plt.imshow(self.fits[imNum])
-        plt.title('FITS Image ' + str(imNum))
-        plt.show()
-
-    ## fitsExport(): Export FITS file of fits data
-    def fitsExport(self):
-
+    # Write data to FITS file
+    def write(self): # Write FITS file
         # Create PrimaryHDU object with data
-        hdu = fits.PrimaryHDU(self.fits)
+        hdu = fits.PrimaryHDU(self.data)
         # Create HDUList object w/ PrimaryHDU
         hdulist = fits.HDUList([hdu])
         # Write to new file
-        hdulist.writeto(self.fitsFileName)
+        hdulist.writeto(self.fileName)
 
-    ## psdImport(): Import PSD data (from a FITS file)
-    def psdImport(self, printInfo = True, printHeaders = False):
+    # View data
+    # Option to view log of data
+    # Option to select which image in 3D cube to view
+    def view(self, log=False, title=None, imNum=0):
+        plt.figure()
+        # Check for dimensionality of data
+        # If 2D, show the image
+        if len(np.shape(self.data)) == 2:
+            if (log == False):
+                plt.imshow(self.data)
+            if (log == True):
+                plt.imshow(np.log10(self.data))
+        # If 3D, show the image of selected index
+        elif len(np.shape(self.data)) == 3:
+            if (log == False):
+                plt.imshow(self.data[imNum])
+            if (log == True):
+                plt.imshow(np.log10(self.data[imNum]))
+        # If other, must be an error
+        else:
+            sys.exit("Can only view 2D or 3D data")
+        plt.title(title)
+        plt.show()
 
-        # Check if input file is .fits
-        if (os.path.splitext(self.psdFileName)[1] != ".fits"):
-            # Exit program if not FITS
-            sys.exit(("ERROR: " + self.psdFileName + " is not .fits"))
-
-        # Open FITS Data
-        HDUList = fits.open(self.psdFileName)
-        # Print FITS File Info & Headers
-        if (printInfo == True):
-            print(HDUList.info())
-        if (printHeaders == True):
-            print("Headers:")
-            print(repr(HDUList[0].header))
-
-        # Check that input psd FITS is 2D
-        if (len(np.shape(HDUList[0].data)) > 2):
-            sys.exit(("ERROR: " + self.psdFileName + " contains more than one image"))
-
-        # Save data in FITS cube to local variable, then close FITS file
-        psdData = HDUList[0].data
-        HDUList.close()
-        # Save fits data
-        self.psd = psdData
+# Target Class: Holds data for a Reference or Binary Star
+class target():
+    # Init
+    def __init__(self):
+        self.fits = fitsData()		# Holds raw astronomical data
+        self.psd = fitsData()    	# Holds calculated PSD of target
 
     def psdCalc(self):
     # Calculate PSD of FITS data
@@ -133,59 +128,35 @@ class target():
 
         self.psd = fftshift(psdAvg)
 
-    # psdView(): View PSD
-    def psdView(self):
-        plt.figure()
-        plt.imshow(np.log10(self.psd))
-        plt.title('PSD Image ')
-        plt.show()
-
-    ## psdExport(): Export FITS file of psd
-    def psdExport(self):
-        # Create PrimaryHDU object with data
-        hdu = fits.PrimaryHDU(self.psd)
-        # Create HDUList object w/ PrimaryHDU
-        hdulist = fits.HDUList([hdu])
-        # Write to new file
-        hdulist.writeto(self.psdFileName)
-
 ## Deconvolved Class: Holds data for devonvolved targets
 class deconvolved():
-    psd = None          # Holds deconvolved PSD
-    psdFiltered = None  # Holds filtered PSD
-    psdFilteredFileName = None # Holds filtered PSD filename
-    acorr = None        # Holds autocorrelation of PSD
-
+    # Init
+    def __init__(self):
+        self.psd = fitsData()          # Holds deconvolved PSD
+        self.psdFiltered = fitsData()  # Holds filtered PSD
+        self.acorr = fitsData()        # Holds autocorrelation of PSD
 
     # Deconvolve PSDs
     def psdDeconvolve(self, psdBinary, psdReference, constant):
         # Divide double PSD by modified reference single PSD to deconvolve
-        self.psd = np.divide(psdBinary, (psdReference+constant))
-
-    # View PSD
-    def psdView(self):
-        plt.figure()
-        plt.imshow(np.log10(self.psd))
-        plt.title('PSD Image')
-        plt.show()
-
+        self.psd.data = np.divide(psdBinary, (psdReference+constant))
 
     # psdFilter(LPF, HPF, Interference): Filters PSD to make PSDFiltered
     # LPF and HPF are gaussian shape
     # Interference filter only works for images with even number of pixels to a side
     def psdFilter(self, lpfRadius=None, hpfRadius=None, interference=False):
 
-        imgSize = np.shape(self.psd)[0] # Calculate dimension of image
+        imgSize = np.shape(self.psd.data)[0] # Calculate dimension of image
         imgCenter = imgSize/2         # Center index of image
 
         # Start filtered output as unfiltered psd
-        self.psdFiltered = np.array(self.psd)
+        self.psdFiltered.data = np.array(self.psd.data)
 
         # Perform LPF filtering if user selected a radius
         if (lpfRadius != None):
 
             # Save present input values
-            psdTemp = np.array(self.psdFiltered)
+            psdTemp = np.array(self.psdFiltered.data)
 
             # Loop through all Y
             for y in np.arange(0,imgCenter+1):
@@ -196,66 +167,49 @@ class deconvolved():
                     # Calculate filter's value at this radius
                     filterH = np.exp(-(np.power(radius,2)/(2*np.power(lpfRadius,2))))
                     # Multiply filter's value by this point and the mirrored locations in image
-                    self.psdFiltered[y,x] = np.multiply(psdTemp[y,x],filterH)
-                    self.psdFiltered[y,imgSize-1-x] = np.multiply(psdTemp[y,imgSize-1-x],filterH)
-                    self.psdFiltered[imgSize-1-y,x] = np.multiply(psdTemp[imgSize-1-y,x],filterH)
-                    self.psdFiltered[imgSize-1-y,imgSize-1-x] = np.multiply(psdTemp[imgSize-1-y,imgSize-1-x],filterH)
+                    self.psdFiltered.data[y,x] = np.multiply(psdTemp[y,x],filterH)
+                    self.psdFiltered.data[y,imgSize-1-x] = np.multiply(psdTemp[y,imgSize-1-x],filterH)
+                    self.psdFiltered.data[imgSize-1-y,x] = np.multiply(psdTemp[imgSize-1-y,x],filterH)
+                    self.psdFiltered.data[imgSize-1-y,imgSize-1-x] = np.multiply(psdTemp[imgSize-1-y,imgSize-1-x],filterH)
 
         # Perform HPF filtering if user selected a radius
         if (hpfRadius != None):
+            print("HPF Not Implemented Yet")
             pass
 
         # Perform interference filtering if user enabled it
         if (interference == True):
             # Copy image to be filtered
-            psdTemp = np.array(self.psdFiltered)
+            psdTemp = np.array(self.psdFiltered.data)
 
             # Perform filtering on vertical interference
             for y in np.arange(imgSize):
                 avg = np.average((psdTemp[y,imgCenter+1],psdTemp[y,imgCenter-1]))
-                self.psdFiltered[y,imgCenter]=avg
+                self.psdFiltered.data[y,imgCenter]=avg
 
             # Perform filtering on horizontal interference
             for x in np.arange(imgSize):
                 avg = np.average((psdTemp[imgCenter+1,x],psdTemp[imgCenter-1,x]))
-                self.psdFiltered[imgCenter,x]=avg
-
-            self.psdFiltered=psdTemp
-
-
-    # View Filtered PSD
-    def psdFilteredView(self):
-        plt.figure()
-        plt.imshow(np.log10(self.psdFiltered))
-        plt.title('Filtered PSD Image')
-        plt.show()
-
+                self.psdFiltered.data[imgCenter,x]=avg
 
     # Calculate autocorrelation from filtered PSD
     def acorrCalc(self):
         # Because we normalized after FFT by multiplying by 1/N^2, and ifft
         #  function does this as well, we need to multiply by N^2 before ifft
         #  to prevent performing normalization twice
-        self.acorr = self.psdFiltered*(self.psdFiltered.size)
+        self.acorr.data = self.psdFiltered.data*(self.psdFiltered.data.size)
 
         # Do iFFT on PSD's, bringing back to spatial domain
         # This should give us the autocorrelations of original images
-        self.acorr = ifft2(self.acorr)
+        self.acorr.data = ifft2(self.acorr.data)
 
         # Taking iFFT of PSD (all real values) results in complex valued output
         #  Must view the magnitude of the output
         #  Doing FFTshift to move eyes of autocorrelation near center
         # Taking iFFT of PSD (all real values) results in complex valued output
         #  Must view the magnitude of the output
-        self.acorr = np.abs(fftshift(self.acorr))
+        self.acorr.data = np.abs(fftshift(self.acorr.data))
 
-
-    # View autocorrelation
-    def acorrView(self):
-        plt.figure()
-        plt.imshow(self.acorr)
-        plt.title('Autocorrelation')
-        plt.show()
 
 
 ## Need another class to hold all this centroid finding stuff
@@ -267,63 +221,3 @@ class deconvolved():
 # centroidEstimate(): Estimate centroids of image
 # centroidCalculate(x,y,radius): Calculate centroid within area
 
-# Class to hold an array of data
-# Built in methods for importing/exporting/viewing the data
-class fitsData():
-    data = None # Holds data
-    fileName = None # Holds filename for import/export
-
-    def read(self, numDimensions=2, printInfo=True, printHeaders=False): # Imports FITS file
-        # Check if input file is .fits
-        if (os.path.splitext(self.fileName)[1] != ".fits"):
-            # Exit program if not FITS
-            sys.exit(("ERROR: " + self.fileName + " is not .fits"))
-
-        # Open FITS Data
-        HDUList = fits.open(self.fileName)
-        # Print FITS File Info & Headers
-        if (printInfo == True):
-            print(HDUList.info())
-        if (printHeaders == True):
-            print("Headers:")
-            print(repr(HDUList[0].header))
-
-        # Check that input psd FITS is appropriate dimension
-        if (len(np.shape(HDUList[0].data)) != numDimensions):
-            sys.exit(("ERROR: " + self.fileName + " dimensions != " + str(numDimensions)))
-
-        # Save data in FITS cube to class's data variable, then close FITS file
-        self.data = HDUList[0].data
-        HDUList.close()
-
-    def write(self): # Write FITS file
-        # Create PrimaryHDU object with data
-        hdu = fits.PrimaryHDU(self.data)
-        # Create HDUList object w/ PrimaryHDU
-        hdulist = fits.HDUList([hdu])
-        # Write to new file
-        hdulist.writeto(self.fileName)
-
-    # View data
-    # Option to view log of data
-    # Option to select which image in 3D cube to view
-    def view(self, log=False, title=None, imNum=0):
-        plt.figure()
-        # Check for dimensionality of data
-        # If 2D, show the image
-        if len(np.shape(self.data)) == 2:
-            if (log == False):
-                plt.imshow(self.data)
-            if (log == True):
-                plt.imshow(np.log10(self.data))
-        # If 3D, show the image of selected index
-        elif len(np.shape(self.data)) == 3:
-            if (log == False):
-                plt.imshow(self.data[imNum])
-            if (log == True):
-                plt.imshow(np.log10(self.data[imNum]))
-        # If other, must be an error
-        else:
-            sys.exit("Can only view 2D or 3D data")
-        plt.title(title)
-        plt.show()
