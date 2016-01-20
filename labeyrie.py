@@ -6,6 +6,7 @@ import sys
 from labeyrieClasses import target,deconvolved, photometry
 import tkinter as tk
 import matplotlib.pyplot as plt
+import numpy as np
 from tkinter import filedialog
 import os, sys
 
@@ -41,18 +42,21 @@ deconv.psdFilter(lpfRadius = 25, interference=True)
 deconv.acorrCalc()
 
 # View Results
-deconv.acorr.view()
+#deconv.acorr.view()
 
 # Estimating centroid locations
 # Moving acorr to photometry object
 calcs.acorr = deconv.acorr.data
 calcs.acorrMarkedClear()
 
-#Testing marking of Acorr function
-calcs.acorrMark(x=10,y=200,shape='o',color=(255,0,0))
-calcs.acorrMark(x=200,y=200,shape="+",color=(0,255,0))
+# Testing centroid estimation
+centroid = calcs.centroidEstimate()
+centroid = np.round(centroid).astype(np.uint16)
+print(centroid)
 
-# View Marked Acorr
+# Viewing estimated centroid locations
 plt.figure()
+calcs.acorrMark(centroid[0,0],centroid[0,1],"+",(255,0,0))
+calcs.acorrMark(centroid[1,0],centroid[1,1],"+",(255,0,0))
 plt.imshow(calcs.acorrMarked)
 plt.show()
