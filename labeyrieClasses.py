@@ -233,19 +233,20 @@ class photometry():
             self.acorrMarked[:,:,i] = imgScaled
 
     # Mark acorr at location with indicated shape
-    def acorrMark(self,x,y,shape,color):
-        radius = 10
-        length = 5
+    def acorrMark(self,x,y,shape,color,radius=10):
         if shape == 'o':
             cv2.circle(self.acorrMarked, (x, y), radius, color, 1)
         elif shape == '+':
-            cv2.line(self.acorrMarked,(x-length,y),(x+length,y),color,1)
-            cv2.line(self.acorrMarked,(x,y-length),(x,y+length),color,1)
+            cv2.line(self.acorrMarked,(x-radius,y),(x+radius,y),color,1)
+            cv2.line(self.acorrMarked,(x,y-radius),(x,y+radius),color,1)
         else:
             print("Invalid shape input")
 
 # centroid[0,1][x,y]: Locations of centroids
 # centroidExpected[x,y]: Expected location of secondary
-# centroidEstimate(): Estimate centroids of image
+    # Estimate centroids of autocorr
+   # def centroidEstimate(self):
+
+
 # centroidCalculate(x,y,radius): Calculate centroid within area
 
