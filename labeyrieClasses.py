@@ -242,11 +242,131 @@ class photometry():
         else:
             print("Invalid shape input")
 
-# centroid[0,1][x,y]: Locations of centroids
 # centroidExpected[x,y]: Expected location of secondary
-    # Estimate centroids of autocorr
-   # def centroidEstimate(self):
-
-
 # centroidCalculate(x,y,radius): Calculate centroid within area
 
+    # Estimate centroids of autocorr
+    # Autocorrelation image consists primarily of the large central lobe and less tall two side lobes
+    # Lobes are found by creating a thresholded image, 1 where above threshold otherwise 0
+    # Threshold is started at peak of center lobe, moved down to the minimum value that gives 3 contours
+    def centroidEstimate(self):
+
+        # Start thresh at max value of autocorr (assuming that is from central peak)
+        threshold = np.floor(self.acorr.max())
+
+        # Calculate values to increment/decrement threshold by depending on height of autocorrelogram
+        incrementFine   = self.acorr.max()/100
+
+        # Assume we start with 1 contour visible
+        numContours = 1
+
+        # Step down threshold until we see the 3 contours we expect
+        while (numContours != 3):
+            # Decrement the threshold
+            threshold = threshold - incrementFine
+
+            # Create thresholded image
+            acorrThresh = self.acorr.data > threshold # Calculate indices in image above threshold
+            acorrThresh = (np.multiply(acorrThresh,255).astype(np.uint8))
+
+            # Find contours of threshold image
+            im,contours,hierarchy = cv2.findContours(acorrThresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+            numContours = len(contours)
+
+            if threshold < 0:
+                print("Error in finding 3 contours")
+                sys.exit()
+
+        # Now we've found our 3 main contours. Keep stepping down until we don't see 3 anymore
+        # Can be less than 3 if they start to blend together, or more than 3 if other noise in
+        #  image appears
+        while (numContours == 3):
+            # Decrement the threshold
+            threshold = threshold - incrementFine
+
+            # Create thresholded image
+            acorrThresh = self.acorr.data > threshold # Calculate indices in image above threshold
+            acorrThresh = (np.multiply(acorrThresh,255).astype(np.uint8))
+
+            # Find contours of threshold image
+            im,contours,hierarchy = cv2.findContours(acorrThresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+            numContours = len(contours)
+
+            if threshold < 0:
+                print("Error in moving threshold below 3 contours")
+                sys.exit()
+
+        # We've moved just below our desired 3 contours threshold. We moved down by incrementFine, so we
+        #  need to move up by incrementFine to get back to the proper threshold
+        threshold = threshold + incrementFine
+        # Create thresholded image
+        acorrThresh = self.acorr.data > threshold # Calculate indices in image above threshold
+        acorrThresh = (np.multiply(acorrThresh,255).astype(np.uint8))
+        # Find contours of threshold image
+        im,contours,hierarchy = cv2.findContours(acorrThresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+        numContours = len(contours)
+
+        # Now that we have the contours, we want to find their centroids for sorting purposes
+        centroid = np.zeros((3,2))
+        centerDistance = np.zeros(3)
+        imgCenter = np.divide(np.shape(self.acorr),2) # Center pixel indices
+
+        for i in np.arange(3):
+            # Calculating Image Moment/Raw Moment of contour
+            M = cv2.moments(contours[i])
+
+            # Calculate centroid X and Y components
+            cx = int(M['m10']/M['m00'])
+            cy = int(M['m01']/M['m00'])
+
+            # Save centroid
+            centroid[i] = (cx, cy)
+
+            # Calculate distance from centroid to image center
+            centerDistance[i] = np.linalg.norm(centroid[i] - imgCenter)
+
+        # Get index of central contour as contour with min distance to center
+        iCenter = np.where(centerDistance == centerDistance.min())
+        iCenter = iCenter[0]
+
+        # Finding indices of side lobes
+        iSide = [0,1,2] # Possible indices of side lobes
+        iSide.remove(iCenter) # Remove the center lobe index
+
+        # Make empty mask images
+        maskSide = np.zeros((2,np.shape(self.acorr)[0],np.shape(self.acorr)[1]))
+        lobeSide = np.zeros((2,np.shape(self.acorr)[0],np.shape(self.acorr)[1]))
+
+        # Create masks and calculate side lobes
+        for i in np.arange(2):
+            cv2.drawContours(maskSide[i],contours,iSide[i],(1,1,1),-1)
+            lobeSide[i] = (np.multiply(self.acorr,maskSide[i]))
+
+        # Calculating intensity weighted centroid of side lobes, using entire contour
+        M00 = np.zeros((2))
+        M10 = np.zeros((2))
+        M01 = np.zeros((2))
+        centroid = np.zeros((2,2))
+
+        # Calculate for each side lobe
+        for lobe in np.arange(2):
+
+            # Calculate average
+            M00[lobe] = np.sum(lobeSide[lobe])
+
+            # Calculate X component
+            # Loop through each column
+            for column in np.arange(np.shape(lobeSide[lobe])[1]):
+                M10[lobe] += np.multiply(column,np.sum(lobeSide[lobe,:,column]))
+
+            # Calculate Y component
+            # Loop through each row
+            for row in np.arange(np.shape(lobeSide[lobe])[0]):
+                M01[lobe] += np.multiply(row,np.sum(lobeSide[lobe,row,:]))
+
+            # Calculate X and Y Centroid Components of each lobe
+            centroid[lobe,0] = M10[lobe]/M00[lobe] # X Component
+            centroid[lobe,1] = M01[lobe]/M00[lobe] # Y Component
+
+        # Return centroid locations
+        return centroid
