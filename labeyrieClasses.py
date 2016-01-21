@@ -83,16 +83,16 @@ class target():
     def psdCalc(self):
     # Calculate PSD of FITS data
         # Checking if FITS data is an array of images
-        if (len(self.fits.shape) == 3):
+        if (len(self.fits.data.shape) == 3):
             # Generate empty array the size of an image to be used to accumulate
             #  PSD values before averaging.
-            psdSum = np.zeros(self.fits.shape[1:3])
+            psdSum = np.zeros(self.fits.data.shape[1:3])
 
-            imgNum = np.shape(self.fits)[0] # Number of images
-            imgIncrement = 50 # How often to display a status message
+            imgNum = np.shape(self.fits.data)[0] # Number of images
+            imgIncrement = imgNum/20 # How often to display a status message
 
             # Looping through all images in cube
-            for index,img in enumerate(self.fits):
+            for index,img in enumerate(self.fits.data):
 
                 # Print current file being processed
                 if (((index+1) % imgIncrement) == 0):
@@ -126,7 +126,7 @@ class target():
             # Normalizing FFT
             psdAvg = np.divide(psdImg, (psdImg.size)**2)
 
-        self.psd = fftshift(psdAvg)
+        self.psd.data = fftshift(psdAvg)
 
 # Deconvolved Class: Holds data for devonvolved targets
 class deconvolved():
