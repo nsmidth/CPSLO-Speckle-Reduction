@@ -28,8 +28,8 @@ fitsFileNames = filedialog.askopenfilenames(title="Select FITS files for process
 for fitsFileName in fitsFileNames:
 
     # Import FITS file
-    raw.fitsFileName = fitsFileName
-    raw.fitsImport(printInfo=False)
+    raw.fits.fileName = fitsFileName
+    raw.fits.read(numDimensions=3,printInfo=False)
 
     # Create new filename
     psdFileName = os.path.splitext(fitsFileName)[0]
@@ -64,8 +64,8 @@ for fitsFileName in fitsFileNames:
         raw.psdCalc()
 
         # Create new FITS file
-        raw.psdFileName = psdFileName
-        raw.psdExport()
+        raw.psd.fileName = psdFileName
+        raw.psd.write()
 
         #Print message for user
         print("Done processing ", psdFileName)
