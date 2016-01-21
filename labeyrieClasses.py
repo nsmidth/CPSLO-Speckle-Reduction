@@ -210,15 +210,14 @@ class deconvolved():
         #  Must view the magnitude of the output
         self.acorr.data = np.abs(fftshift(self.acorr.data))
 
-# coords class: Holds methods for calculating locations in sky and
-#  on the image sensor
+# coords class: Holds methods for working in polar/cart cordinates
 class coords():
-    def __init__(self):
+    def __init__(self, midpoint):
         self.theta = None
         self.rho = None
         self.x = None
         self.y = None
-        self.midpoint = None
+        self.midpoint = midpoint
 
     # Orbital plot has 0deg pointing down on the screen [resulting in 90deg shift]
     # Theta rotates counterclockwise from 0deg
@@ -241,18 +240,30 @@ class coords():
         # Add 360 deg if theta is a negative angle
         self.theta = self.theta + 360*(self.theta<0)
 
+# camsky class: Holds methods for working between measurements in camera and sky
+class camsky():
+    def __init__(self, midpoint, delta, e):
+        self.cam = coords(midpoint)
+        self.sky = coords(midpoint)
+        self.delta = delta
+        self.e = e
+
+    # Convert from polar coords in sky to polar coords in camera
+    def sky2cam(self):
+        self.cam.theta = self.sky.theta+self.delta
+        self.cam.rho = self.sky.rho/self.e
+
+    # Convert from polar coords in camera to polar coords in sky
+    def cam2sky(self, camTheta, camRho):
+        self.sky.theta = self.cam.theta-self.delta
+        self.sky.rho = self.cam.rho*self.e
+
 # Photometry class: Holds data for photometry measurements
 class photometry():
     # Init
     def __init__(self):
         self.acorr = None # Raw Autocorrelation
         self.acorrMarked = None # Marked up Autocorrelation
-        self.delta = None # Camera Angle in degrees
-        self.e = None # Plate scale in arcsecs/pixel
-        self.expCam = coords() # Expected coordinates of secondary in camera sensor
-        self.expSky = coords() # Expected coordinates of secondary in sky
-        self.obsCam = coords() # Observed coordinates of secondary in camera sensor
-        self.obsSky = coords() # Observed coordinates of secondary in sky
 
     # Clear marked up acorr back to original acorr
     def acorrMarkedClear(self):
@@ -281,18 +292,6 @@ class photometry():
 
 # centroidExpected[x,y]: Expected location of secondary
 # centroidCalculate(x,y,radius): Calculate centroid within area
-
-    # Convert from polar coords in sky to polar coords in camera
-    def sky2cam(self, skyTheta, skyRho):
-        camTheta = skyTheta+self.delta
-        camRho = skyRho/self.e
-        return (camTheta, camRho)
-
-    # Convert from polar coords in camera to polar coords in sky
-    def cam2sky(self, camTheta, camRho):
-        skyTheta = camTheta-self.delta
-        skyRho = camRho*self.e
-        return (skyTheta, skyRho)
 
     # Estimate centroids of autocorr
     # Autocorrelation image consists primarily of the large central lobe and less tall two side lobes
