@@ -45,8 +45,14 @@ deconv.acorrCalc()
 # View Results
 deconv.acorr.view(log=True)
 
-# Displaying estimated observed and expected locations
+# Write acorr to file
+deconv.acorr.fileName = ''
+deconv.acorr.fileName = filedialog.asksaveasfilename(defaultextension=".fits",
+                                                     initialdir=(os.path.split(reference.psd.fileName+'/')))
+if (deconv.acorr.fileName != ''):
+    deconv.acorr.write()
 
+# Displaying estimated observed and expected locations
 # Calculate middle index of image
 midpoint = np.shape(deconv.acorr.data)[0]/2
 # Create object for observed and expected secondary locations
