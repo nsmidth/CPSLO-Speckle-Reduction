@@ -9,6 +9,7 @@ import sys, os, cv2
 
 # Class to hold an array of data
 # Built in methods for importing/exporting/viewing the data
+# Used in target and deconvolved class
 class fitsData():
     # Init
     def __init__(self):
@@ -211,6 +212,7 @@ class deconvolved():
         self.acorr.data = np.abs(fftshift(self.acorr.data))
 
 # coords class: Holds methods for working in polar/cart cordinates
+# Used in camsky class
 class coords():
     def __init__(self, midpoint):
         self.theta = None
