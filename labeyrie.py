@@ -22,14 +22,14 @@ deconv = deconvolved()
 calcs = photometry()
 
 # Prompt user for binary PSD file location
-#binary.psd.fileName = filedialog.askopenfilename(title="Select BINARY FITS file")
-binary.psd.fileName = "/home/niels/Documents/FITS/KP336_PSD.fits"
+binary.psd.fileName = filedialog.askopenfilename(title="Select BINARY FITS file")
+#binary.psd.fileName = "/home/niels/Documents/FITS/KP336_PSD.fits"
 # Import binary star PSD FITS
 binary.psd.read()
 
 # Prompt user for reference PSD file location
-#reference.psd.fileName = filedialog.askopenfilename(title="Select REFERENCE FITS file")
-reference.psd.fileName = "/home/niels/Documents/FITS/KP338_PSD.fits"
+reference.psd.fileName = filedialog.askopenfilename(title="Select REFERENCE FITS file")
+#reference.psd.fileName = "/home/niels/Documents/FITS/KP338_PSD.fits"
 # Import reference star PSD FITS
 reference.psd.read()
 
@@ -55,17 +55,21 @@ if (deconv.acorr.fileName != ''):
     deconv.acorr.write()
 
 # Displaying estimated observed and expected locations
+if (input("Perform centroid calculation? [y/n]  ").lower() == 'n'):
+    sys.exit("Done")
+delta = float(input("Enter camera angle (delta) in degrees  "))
+e = float(input("Enter plate scale (e) in arcsec/pixel  "))
 # Calculate middle index of image
 midpoint = np.shape(deconv.acorr.data)[0]/2
 # Create object for observed and expected secondary locations
-obs0 = camsky(midpoint=midpoint,delta=0,e=0.01166)
-obs1 = camsky(midpoint=midpoint,delta=0,e=0.01166)
-exp = camsky(midpoint=midpoint,delta=0,e=0.01166)
+obs0 = camsky(midpoint=midpoint,delta=delta,e=e)
+obs1 = camsky(midpoint=midpoint,delta=delta,e=e)
+exp = camsky(midpoint=midpoint,delta=delta,e=e)
 
 # Input expected secondary location to be displayed
 ## DEBUG################# KP336/338 Expected values
-exp.sky.theta = 305
-exp.sky.rho = 0.5
+exp.sky.theta = float(input("Enter secondary's expected location angle (theta) in degrees  "))
+exp.sky.rho = float(input("Enter secondary's expected location separation (rho) in arcsec  "))
 exp.sky2cam()
 exp.cam.polar2cart()
 
