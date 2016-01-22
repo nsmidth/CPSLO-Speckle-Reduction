@@ -7,6 +7,7 @@ from labeyrieClasses import target,deconvolved, photometry, camsky
 import tkinter as tk
 import matplotlib.pyplot as plt
 import numpy as np
+import math
 from tkinter import filedialog
 import os, sys
 
@@ -44,15 +45,13 @@ deconv.acorrCalc()
 # View Results
 deconv.acorr.view(log=True)
 
-# Estimating centroid locations
-# Moving acorr to photometry object
-calcs.acorr = deconv.acorr.data
-calcs.acorrMarkedClear()
+# Displaying estimated observed and expected locations
 
 # Calculate middle index of image
-midpoint = np.shape(calcs.acorr)[0]/2
+midpoint = np.shape(deconv.acorr.data)[0]/2
 # Create object for observed and expected secondary locations
-obs = camsky(midpoint=midpoint,delta=0,e=0.01166)
+obs0 = camsky(midpoint=midpoint,delta=0,e=0.01166)
+obs1 = camsky(midpoint=midpoint,delta=0,e=0.01166)
 exp = camsky(midpoint=midpoint,delta=0,e=0.01166)
 
 # Input expected secondary location to be displayed
@@ -63,16 +62,22 @@ exp.sky2cam()
 exp.cam.polar2cart()
 
 # Testing centroid estimation
+calcs.acorr = deconv.acorr.data # Moving acorr to photometry object
 centroid = calcs.centroidEstimate()
-centroid = np.round(centroid).astype(np.uint16)
+# Save centroid locations to observed position objects
+(obs0.cam.x,obs0.cam.y)=centroid[0]
+(obs1.cam.x,obs1.cam.y)=centroid[1]
 
 # Viewing estimated centroid locations
-plt.figure()
+# Prepare the object for marking up with locations
+calcs.acorr = deconv.acorr.data
+calcs.acorrMarkedClear()
 # Mark expected position
 calcs.acorrMark(exp.cam.x.astype(np.uint16),exp.cam.y.astype(np.uint16),"o",(0,255,0))
 # Mark observed position
-calcs.acorrMark(centroid[0,0],centroid[0,1],"+",(255,0,0))
-calcs.acorrMark(centroid[1,0],centroid[1,1],"+",(255,0,0))
+calcs.acorrMark(obs0.cam.x.astype(np.uint16),obs0.cam.y.astype(np.uint16),"o",(255,0,0))
+calcs.acorrMark(obs1.cam.x.astype(np.uint16),obs1.cam.y.astype(np.uint16),"o",(255,0,0))
 # View Image
+plt.figure()
 plt.imshow(calcs.acorrMarked)
 plt.show()
