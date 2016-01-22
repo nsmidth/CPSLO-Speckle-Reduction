@@ -72,6 +72,7 @@ class fitsData():
         else:
             sys.exit("Can only view 2D or 3D data")
         plt.title(title)
+        plt.colorbar()
         plt.show()
 
 # Target Class: Holds data for a Reference or Binary Star
