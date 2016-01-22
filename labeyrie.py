@@ -42,13 +42,15 @@ deconv.psdFilter(lpfRadius = 20, interference=True)
 # Get autocorrelogram
 deconv.acorrCalc()
 
+# Normalize acorr data to between 0 and 1
+deconv.acorr.data = np.divide(deconv.acorr.data,deconv.acorr.data.max())
 # View Results
-deconv.acorr.view(log=True)
+deconv.acorr.view(title="Autocorrelation")
 
 # Write acorr to file
 deconv.acorr.fileName = ''
 deconv.acorr.fileName = filedialog.asksaveasfilename(defaultextension=".fits",
-                                                     initialdir=(os.path.split(reference.psd.fileName+'/')))
+                                                     initialdir=(os.path.split(reference.psd.fileName)[0]+'/'))
 if (deconv.acorr.fileName != ''):
     deconv.acorr.write()
 
