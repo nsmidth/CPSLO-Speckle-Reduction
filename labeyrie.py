@@ -67,7 +67,6 @@ obs1 = camsky(midpoint=midpoint,delta=delta,e=e)
 exp = camsky(midpoint=midpoint,delta=delta,e=e)
 
 # Input expected secondary location to be displayed
-## DEBUG################# KP336/338 Expected values
 exp.sky.theta = float(input("Enter secondary's expected location angle (theta) in degrees  "))
 exp.sky.rho = float(input("Enter secondary's expected location separation (rho) in arcsec  "))
 exp.sky2cam()
