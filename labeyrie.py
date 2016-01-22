@@ -86,4 +86,5 @@ calcs.acorrMark(obs1.cam.x.astype(np.uint16),obs1.cam.y.astype(np.uint16),"o",(2
 # View Image
 plt.figure()
 plt.imshow(calcs.acorrMarked)
+plt.title("Observed and expected secondary locations")
 plt.show()
