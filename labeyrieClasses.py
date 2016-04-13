@@ -160,19 +160,17 @@ class deconvolved():
             # Save present input values
             psdTemp = np.array(self.psdFiltered.data)
 
-            # Loop through all Y
-            for y in np.arange(0,imgCenter+1):
-                # Loop through all X
-                for x in np.arange(0, imgCenter+1):
-                    # Calculate distance of point to center of image
-                    radius = np.linalg.norm((y-imgCenter,x-imgCenter))
-                    # Calculate filter's value at this radius
-                    filterH = np.exp(-(np.power(radius,2)/(2*np.power(lpfRadius,2))))
-                    # Multiply filter's value by this point and the mirrored locations in image
-                    self.psdFiltered.data[y,x] = np.multiply(psdTemp[y,x],filterH)
-                    self.psdFiltered.data[y,imgSize-1-x] = np.multiply(psdTemp[y,imgSize-1-x],filterH)
-                    self.psdFiltered.data[imgSize-1-y,x] = np.multiply(psdTemp[imgSize-1-y,x],filterH)
-                    self.psdFiltered.data[imgSize-1-y,imgSize-1-x] = np.multiply(psdTemp[imgSize-1-y,imgSize-1-x],filterH)
+            # Create centered meshgrid of image
+            xx,yy = np.meshgrid(np.arange(imgSize),np.arange(imgSize))
+            xx = np.subtract(xx,imgCenter)
+            yy = np.subtract(yy,imgCenter)
+            rr = np.power(np.power(xx,2)+np.power(yy,2),0.5)
+
+            # Create LPF filter image
+            filterH = np.exp(-(np.power(rr,2)/(2*np.power(lpfRadius,2))))
+
+            # Filter the PSD with LPF
+            self.psdFiltered.data = np.multiply(psdTemp,filterH)
 
         # Perform HPF filtering if user selected a radius
         if (hpfRadius != None):
