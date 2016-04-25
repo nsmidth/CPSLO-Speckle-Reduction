@@ -9,7 +9,7 @@
 //  gcc -o fftw_psd.so -shared -fPIC fftw_psd.c
 
 
-double * psd(double in[]);
+double * psd(double * in);
 
 // Main tests the timing of PSD function
 void main(void) {
@@ -107,7 +107,7 @@ Save FFT time
   //free ( out_psd );
 }
 
-double * psd(double in[]) {
+double * psd(double * in) {
   // Counters
   int i;
   int j;
