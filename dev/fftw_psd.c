@@ -3,19 +3,22 @@
 # include <fftw3.h>
 # include <time.h>
 
+//#define PRINT_DATA
+
 #define IMG_SIZE 512
 
 // Compile with : 
 //  gcc -o fftw_psd.so -shared -fPIC fftw_psd.c
 
 
-double * psd(double * in);
+float * psd(float * in_img);
+float * test(float * in_img);
 
 // Main tests the timing of PSD function
 void main(void) {
   int i;
-  double *in;
-  double *out_psd;
+  float *in;
+  float *out_psd;
   int j;
   int nx = IMG_SIZE;
   int ny = IMG_SIZE;
@@ -24,11 +27,11 @@ void main(void) {
   unsigned int max_input = 1024;
 
 /*
-  Create the input array, an NX by NY array of doubles.
+  Create the input array, an NX by NY array of floats.
 */
-  in = ( double * ) malloc ( sizeof ( double ) * nx * ny );
-  out_psd = ( double * ) malloc ( sizeof (double ) * nx * nyh );
-
+  in = ( float * ) malloc ( sizeof ( float ) * nx * ny );
+  out_psd = ( float * ) malloc ( sizeof (float ) * nx * nyh );
+/*
   srand ( seed );
 
   for ( i = 0; i < nx; i++ )
@@ -38,6 +41,10 @@ void main(void) {
       in[i*ny+j] = rand ( )%max_input;
     }
   }
+*/  
+  
+  in[4*ny+5] = 1;
+  in[4*ny+3] = 1;
 
 /*
   Save start time
@@ -69,7 +76,7 @@ Save FFT time
 
   printf("\n\n");
   printf("  Total Computation Time : \n");
-  printf("  Elapsed: %f seconds\n", (double)(toc - tic) / CLOCKS_PER_SEC);
+  printf("  Elapsed: %f seconds\n", (float)(toc - tic) / CLOCKS_PER_SEC);
 
   #ifdef PRINT_DATA
       printf ( "\n" );
@@ -103,11 +110,11 @@ Save FFT time
   Free up the allocated memory.
 */
 
-  free ( in );
-  //free ( out_psd );
+  free( in );
+//  free( out_psd );
 }
 
-double * psd(double * in) {
+float * psd(float * in_img) {
   // Counters
   int i;
   int j;
@@ -120,29 +127,35 @@ double * psd(double * in) {
   int ny = IMG_SIZE;
   // PSD has symmetry about the center, 
   //  only need to calculate half the image
-  int nyh = ( ny / 2 ) + 1;;
+  int nyh = ( ny / 2 ) + 1;
+  double psd;
 
-  // Start timing
-  tic = clock();
-  printf("HELLO WORLD\n");
-
-  // Allocate memory for output/plans
+  // Allocate memory for fft output/plans
   fftw_complex *out;
-  static double out_psd[IMG_SIZE*(IMG_SIZE/2+1)];
+  double in_img_double[IMG_SIZE*IMG_SIZE];
+  static float out_psd[IMG_SIZE*(IMG_SIZE/2+1)];
   fftw_plan plan_forward;
+
+  for ( i = 0; i < nx; i++ )
+  {
+    for ( j = 0; j < ny; j++ )
+    {
+       in_img_double[i*ny+j] = (double)in_img[i*ny+j] ;
+    }
+  }  
 
 /*
   Create the output array OUT, which is of type FFTW_COMPLEX,
   and of a size NX * NYH
 */
   out = fftw_malloc ( sizeof ( fftw_complex ) * nx * nyh );
-
 /*
   Set up and execute FFTW Plan
 */
-  plan_forward = fftw_plan_dft_r2c_2d ( nx, ny, in, out, FFTW_ESTIMATE );
+  plan_forward = fftw_plan_dft_r2c_2d ( nx, ny, in_img_double, out, FFTW_ESTIMATE );
 
   fftw_execute ( plan_forward );
+  
 /*
   Calculate PSD of complex output
 */
@@ -150,21 +163,38 @@ double * psd(double * in) {
   {
     for ( j = 0; j < nyh; j++ )
     {
-      out_psd[i*nyh+j] = ((out[i*nyh+j][0]*out[i*nyh+j][0]) + (out[i*nyh+j][1]*out[i*nyh+j][1]));    
+      //out_psd[i*nyh+j] = 3.0;
+      psd = ((out[i*nyh+j][0]*out[i*nyh+j][0]) + (out[i*nyh+j][1]*out[i*nyh+j][1]));    
+//      printf("Current index = %d, ", i*nyh+j);
+//      printf("Present PSD (double) = %f, ", psd);
+//      printf("Present PSD (float) = %f, ", (float)psd);
+//      printf("\n");
+      out_psd[i*nyh+j] = (float)psd;
     }
   }
 
-  toc = clock();
-
-
 /*
   Free up the allocated memory and return PSDs
-*/
+*/  
+  
   fftw_destroy_plan ( plan_forward );
-
   fftw_free ( out );
 
-
-
   return out_psd;
+}
+
+float * test(float * in_img) {
+  // Counters
+  int i;
+  int j;
+  static float out[IMG_SIZE*(IMG_SIZE/2+1)];
+  
+  for (i=0;i<IMG_SIZE;i++){
+    for (j=0;j<((IMG_SIZE/2)+1);j++) {
+      out[i*(IMG_SIZE/2+1)+j] = in_img[i*(IMG_SIZE/2+1)+j];
+    }
+  }
+  
+  return out;
+  
 }
