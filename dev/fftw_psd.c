@@ -12,7 +12,7 @@
 
 
 float * psd(float * in_img);
-float * test(float * in_img);
+float * psd2(float * in_img);
 
 // Main tests the timing of PSD function
 void main(void) {
@@ -31,6 +31,7 @@ void main(void) {
 */
   in = ( float * ) malloc ( sizeof ( float ) * nx * ny );
   out_psd = ( float * ) malloc ( sizeof (float ) * nx * nyh );
+  
 /*
   srand ( seed );
 
@@ -183,18 +184,70 @@ float * psd(float * in_img) {
   return out_psd;
 }
 
-float * test(float * in_img) {
+float * psd2(float * in_img) {
   // Counters
   int i;
   int j;
-  static float out[IMG_SIZE*(IMG_SIZE/2+1)];
+
+  // Time holders
+  clock_t tic,toc;
+
+  // Img Dimensions
+  int nx = IMG_SIZE;
+  int ny = IMG_SIZE;
+  double psd;
+
+  // Allocate memory for fft output/plans
+  fftw_complex *in;
+  fftw_complex *out;
+  static float out_psd[IMG_SIZE*(IMG_SIZE/2+1)];
   
-  for (i=0;i<IMG_SIZE;i++){
-    for (j=0;j<((IMG_SIZE/2)+1);j++) {
-      out[i*(IMG_SIZE/2+1)+j] = in_img[i*(IMG_SIZE/2+1)+j];
+  in = fftw_malloc ( sizeof ( fftw_complex ) * nx * ny );
+  out = fftw_malloc ( sizeof ( fftw_complex ) * nx * ny );
+  
+  // Make FFTW Plan
+  fftw_plan plan_forward;
+  plan_forward = fftw_plan_dft_2d ( nx, ny, in, out, FFTW_FORWARD, FFTW_ESTIMATE );
+
+  // Copy input data to complex array
+  for ( i = 0; i < nx; i++ )
+  {
+    for ( j = 0; j < ny; j++ )
+    {
+       in[i*ny+j][0] = (double)in_img[i*ny+j] ;
+    }
+  }  
+
+/*
+  Execute FFTW Plan
+*/
+
+  fftw_execute ( plan_forward );
+  
+/*
+  Calculate PSD of complex output
+*/
+  for ( i = 0; i < nx; i++ )
+  {
+    for ( j = 0; j < ny; j++ )
+    {
+      //out_psd[i*ny+j] = 3.0;
+      psd = ((out[i*ny+j][0]*out[i*ny+j][0]) + (out[i*ny+j][1]*out[i*ny+j][1]));    
+//      printf("Current index = %d, ", i*ny+j);
+//      printf("Present PSD (double) = %f, ", psd);
+//      printf("Present PSD (float) = %f, ", (float)psd);
+//      printf("\n");
+      out_psd[i*ny+j] = (float)psd;
     }
   }
+
+/*
+  Free up the allocated memory and return PSDs
+*/  
   
-  return out;
-  
+  fftw_destroy_plan ( plan_forward );
+  fftw_free ( in );
+  fftw_free ( out );
+
+  return out_psd;
 }
