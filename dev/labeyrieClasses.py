@@ -456,3 +456,26 @@ def fftw_psd(input_img):
     # Return PSD Image
     return psd_image
 
+# Using FFTW to calculate PSD generates a 512x257 nonredundant array
+# Need to transpose this array into a redundant 512x512 array to take iFFT
+def transpose_fftw_psd(fftw_psd_img):
+    # Calculate Image Dimensions
+    imgsize = np.shape(fftw_psd_img)[0]
+    # Create a padded version of original image
+    fftw_psd_img_padded = np.lib.pad(fftw_psd_img, ((0, 0), (0, int(imgsize/2-1))), 'constant')
+
+    # Loop through first row
+    y = 0
+    y_source = 0
+    for x in np.arange(int(imgsize/2)+1,imgsize):
+        x_source = imgsize-x
+        fftw_psd_img_padded[y,x] = fftw_psd_img_padded[y_source,x_source]    
+    
+    # Loop through rest of image
+    for y in np.arange(1,imgsize):
+        for x in np.arange(int(imgsize/2)+1,imgsize):
+            y_source = imgsize-y
+            x_source = imgsize-x
+            fftw_psd_img_padded[y,x] = fftw_psd_img_padded[y_source,x_source]
+
+    return fftw_psd_img_padded
