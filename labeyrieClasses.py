@@ -6,6 +6,7 @@ import numpy as np
 from scipy.fftpack import fft2, ifft2, fftshift
 from astropy.io import fits
 import sys, os, cv2
+import ctypes
 
 # Class to hold an array of data
 # Built in methods for importing/exporting/viewing the data
@@ -88,7 +89,8 @@ class target():
         if (len(self.fits.data.shape) == 3):
             # Generate empty array the size of an image to be used to accumulate
             #  PSD values before averaging.
-            psdSum = np.zeros(self.fits.data.shape[1:3])
+            psdShape = (self.fits.data.shape[1],int(self.fits.data.shape[1]/2+1))
+            psdSum = np.zeros(psdShape, dtype = np.float32)
 
             imgNum = np.shape(self.fits.data)[0] # Number of images
             imgIncrement = imgNum/20 # How often to display a status message
@@ -105,7 +107,7 @@ class target():
 
                 # Calculate 2D power spectrum
                 # This gives us only real values
-                psdImg = np.abs(fft2(img))**2
+                psdImg = fftw_psd(img)
 
                 # Accumulate current PSD value
                 psdSum = np.add(psdSum,psdImg)
@@ -419,3 +421,39 @@ class photometry():
 
         # Return centroid locations
         return centroid
+
+
+# Use FFTW to calculate the PSD of a single image
+# Input image = 512x512 ndarray of np.double32
+# Output image = 512x257 ndarray of np.double32
+def fftw_psd(input_img):
+    # Import shared C library
+    fftw_psd_dll = ctypes.CDLL('/home/niels/Dropbox/Thesis/Python/fftw_psd.so')
+    # Calculating imgsize parameters
+    # Size of image Height
+    imgsize = 512
+    # Number of pixels in PSD
+    psd_n = imgsize*(int(imgsize/2)+1)
+    # Number of pixels in IMG
+    img_n = imgsize**2  
+  
+    # Reshape Square array to be flat
+    input_img_flat = np.reshape(input_img.astype(np.float32),(imgsize**2,1))
+
+    # Create pointers for in/out
+    img_ptr = (input_img_flat).ctypes.data_as(ctypes.POINTER(ctypes.c_float))
+    out_ptr = (np.zeros(img_n,np.float32)).ctypes.data_as(ctypes.POINTER(ctypes.c_float))
+    # Array type to be passed to wrapped C function
+    # Set input argument to be flat array of doubles (# of input img pixels)
+    fftw_psd_dll.psd.argtypes = [ctypes.POINTER(ctypes.c_float)]
+    fftw_psd_dll.psd.restype = ctypes.POINTER(ctypes.c_float * psd_n)
+
+    # Calculate PSD, get a pointer returned
+    out_ptr = fftw_psd_dll.psd(img_ptr)
+
+    # Reshape array to image
+    psd_image = np.reshape(out_ptr.contents,(imgsize,int(imgsize/2+1)))
+    
+    # Return PSD Image
+    return psd_image
+
