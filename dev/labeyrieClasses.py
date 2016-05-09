@@ -89,7 +89,9 @@ class target():
         if (len(self.fits.data.shape) == 3):
             # Generate empty array the size of an image to be used to accumulate
             #  PSD values before averaging.
-            psdSum = np.zeros(self.fits.data.shape[1:3])
+            psdShape = (self.fits.data.shape[1], int(self.fits.data.shape[1]/2+1))
+            psdSum = np.zeros(psdShape, dtype=np.float32)
+            psdAvg = np.zeros(psdShape, dtype=np.float32)
 
             imgNum = np.shape(self.fits.data)[0] # Number of images
             imgIncrement = imgNum/20 # How often to display a status message
@@ -101,12 +103,9 @@ class target():
                 if (((index+1) % imgIncrement) == 0):
                     print("Processed Image #: ",(index+1),"/",imgNum)
 
-                # FFT function requires little-endian data, so casting it
-                img = img.astype(float)
-
                 # Calculate 2D power spectrum
                 # This gives us only real values
-                psdImg = np.abs(fft2(img))**2
+                psdImg = fftw_psd(img)
 
                 # Accumulate current PSD value
                 psdSum = np.add(psdSum,psdImg)
@@ -119,17 +118,16 @@ class target():
 
         #Otherwise if FITS data is only one image
         elif (len(self.fits.shape) == 2):
-            # FFT function requires little-endian data, so casting it
-            img = self.fits.astype(float)
+
 
             # Calculate 2D power spectrum
             # This gives us only real values
-            psdImg = np.abs(fft2(img))**2
+            psdImg = fftw_psd(img)
 
             # Normalizing FFT
             psdAvg = np.divide(psdImg, (psdImg.size)**2)
 
-        self.psd.data = fftshift(psdAvg)
+        self.psd.data = fftshift(transpose_fftw_psd(psdAvg)).astype(np.float32)
 
 # Deconvolved Class: Holds data for devonvolved targets
 class deconvolved():
