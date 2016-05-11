@@ -14,34 +14,34 @@ center = int(nxy/2)
 class atmospheric_simulation():
   def __init__(self):
     # Aperture/Telescope Specifications:
-    self.diameter_m = 2.133 # Mirror diameter in meters
-    self.focal_length = 129.69 # Effective focal length in meters
+    self.diameter_m = None # Mirror diameter in meters
+    self.focal_length = None # Effective focal length in meters
 
     # Camera Specs
-    self.wavelength = 0.8E-6 # Wavelength of light
-    self.pixel = 8E-6 # length of pixel side in m
-    self.bits = 14 # Bits in camera ADC
-    self.nxy = 512 # Length of sensor side in pixels
-    self.center = int(nxy/2) # Center of sensor in pixels
-    self.platescale = 206265*self.pixel/(self.focal_length) # Calculate plate scale
-    self.gamma = 1.6 # Gamma correction
+    self.wavelength = None # Wavelength of light
+    self.pixel = None # length of pixel side in m
+    self.bits = None # Bits in camera ADC
+    self.nxy = None # Length of sensor side in pixels
+    self.center = None # Center of sensor in pixels
+    self.platescale = None # Plate scale
+    self.gamma = None # Gamma correction
 
     # Binary star specs
-    self.rho = 0.5 # Set separation in arcseconds
-    self.phi = 45 # Set angle in degrees  
+    self.rho = None # Set separation in arcseconds
+    self.phi = None # Set angle in degrees  
     
     # Atmospheric Specs
-    self.alpha = 1/100 # Multiplicative constant
-    self.r0 = 0.2 # Fried Parameter
+    self.alpha = None # Multiplicative constant
+    self.r0 = None # Fried Parameter
     
     # Initializing Empty Images
-    self.input_img = np.zeros((nxy,nxy)) # Input binary star object
-    self.aperture_screen_s = np.zeros((nxy,nxy)) #  Aperture screen
-    self.phase_screen = np.zeros((nxy,nxy)) #  Phase screen values (unwrapped)
-    self.atmosphere_screen = np.zeros((nxy,nxy)) #  Atmosphere screen
-    self.pupil_screen = np.zeros((nxy,nxy)) # Total Pupil Screen
-    self.psf = np.zeros((nxy,nxy)) # PSF of aperture/atmosphere
-    self.binary_img = np.zeros((nxy,nxy)) # Simulated Binary Image
+    self.input_img = None # Input binary star object
+    self.aperture_screen_s = None #  Aperture screen
+    self.phase_screen = None #  Phase screen values (unwrapped)
+    self.atmosphere_screen = None #  Atmosphere screen
+    self.pupil_screen = None # Total Pupil Screen
+    self.psf = None # PSF of aperture/atmosphere
+    self.binary_img = None # Simulated Binary Image
     
     
   def create_input_image(self): 
