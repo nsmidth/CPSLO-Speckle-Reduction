@@ -55,8 +55,8 @@ class camsky():
         self.sky.theta = self.cam.theta-self.delta
         self.sky.rho = self.cam.rho*self.e
 
-# Photometry class: Holds data for photometry measurements
-class photometry():
+# Astrometry class: Holds data for astrometry measurements
+class astrometry():
     # Init
     def __init__(self):
         self.acorr = None # Raw Autocorrelation

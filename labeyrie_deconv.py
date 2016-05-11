@@ -4,7 +4,7 @@
 # Included modules
 import sys
 from classes_labeyrie import target,deconvolved
-from classes_astrometry import photometry, camsky
+from classes_astrometry import astrometry, camsky
 import tkinter as tk
 import matplotlib.pyplot as plt
 import numpy as np
@@ -20,7 +20,7 @@ root.withdraw()
 binary = target()
 reference = target()
 deconv = deconvolved()
-calcs = photometry()
+calcs = astrometry()
 
 # Prompt user for binary PSD file location
 binary.psd.fileName = filedialog.askopenfilename(title="Select BINARY FITS file")
@@ -74,7 +74,7 @@ exp.sky2cam()
 exp.cam.polar2cart()
 
 # Testing centroid estimation
-calcs.acorr = deconv.acorr.data # Moving acorr to photometry object
+calcs.acorr = deconv.acorr.data # Moving acorr to astrometry object
 centroid = calcs.centroidEstimate()
 # Save centroid locations to observed position objects
 (obs0.cam.x,obs0.cam.y)=centroid[0]
