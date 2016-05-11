@@ -27,7 +27,7 @@ class atmospheric_simulation():
     self.gamma = 1.6 # Gamma correction
 
     # Binary star specs
-    self.rho = 1.5 # Set separation in arcseconds
+    self.rho = 0.5 # Set separation in arcseconds
     self.phi = 45 # Set angle in degrees  
     
     # Atmospheric Specs
@@ -51,8 +51,7 @@ class atmospheric_simulation():
     input_img_power = np.sum(np.power(self.input_img,2))
     self.input_img = np.divide(self.input_img,np.sqrt(input_img_power))
     
-  def get_psf(self):
-
+  def create_aperture(self):
     ## Telescope aperture creation:
     # Total spatial sample range
     X_aperture_s = 1/self.pixel 
@@ -77,13 +76,14 @@ class atmospheric_simulation():
     self.aperture_screen_s = np.divide(circle_s,np.sqrt(aperture_screen_power))
     # Calculate effective size of sampled aperture image in meters
     X_aperture_s_meff = self.focal_length*self.wavelength/self.pixel
-
+    
+  def create_atmosphere_screen(self):
     ## Phase screen creation:
     # Generate random image
     # To be used in creating random atmospheric element
     phase_phase = np.multiply(np.pi,np.random.normal(loc=0,scale=1,size=(nxy,nxy)))
     # Total array sample size
-    d_aperture = X_aperture_s_meff
+    d_aperture = self.focal_length*self.wavelength/self.pixel
     # Spatial sample resolution
     dxy = d_aperture/nxy
     # Spatial frequency resolution
@@ -107,7 +107,8 @@ class atmospheric_simulation():
     phase_screen = np.real(ifft2(fftshift(phase_screen_f)*nxy*nxy))
     # Create complex atmospheric screen
     self.atmosphere_screen = np.exp(np.multiply(1j,phase_screen))
-
+    
+  def get_psf(self):
     # Generate total screen, combining atmosphere and aperture
     self.pupil_screen = np.multiply(self.atmosphere_screen,self.aperture_screen_s)
 
@@ -122,16 +123,35 @@ class atmospheric_simulation():
     self.psf = np.power(self.psf,1/self.gamma)  
                      
   def get_binary(self):
-        # Convolve PSF with input image using FFT
-    sensor_img = fftconvolve(input_img,psf)
+    # Convolve PSF with input image using FFT
+    self.binary_img = fftconvolve(self.input_img,self.psf)
     # Save the center 512x512 image
-    sensor_img = sensor_img[center:center+nxy,center:center+nxy]
-  def add_noise(self,img):
-    pass
+    self.binary_img = self.binary_img[self.center:self.center+self.nxy,self.center:self.center+self.nxy]
+  def add_noise(self,img,photons,gaussian_var):
     
+    # Array to be returned
+    img_noisy = np.array(img)  
     
-
-  
+    # If photons > 0, add shot noise
+    if (photons>0):
+      # Normalize input image
+      img_normalized = np.abs(img_noisy)/(np.sum(img_noisy))
+      # Scale image to number of photons desired
+      img_scaled = img_normalized*photons
+      # Calculate image with shot noise
+      img_noisy = np.random.poisson(lam=img_scaled, size=None)
+      
+    # If gaussian_var > 0, add additive noise
+    if (gaussian_var > 0):  
+      # Create noise image
+      noise = np.random.normal(loc=0,scale=gaussian_var,size=(self.nxy,self.nxy))
+      # Add noise image to simulated image
+      img_noisy = img_noisy+noise
+      # Turn all negative pixels to 0
+      img_noisy[img_noisy<0] = 0   
+    
+    # Return noisy image
+    return img_noisy  
   
   ## Adding noise to images
 def add_gaus_noise(img, var):
