@@ -164,5 +164,7 @@ plt.subplot(2,2,3)
 plt.imshow(binary_acorr_avg, cmap=colormap)
 plt.title("Avg Binary Star Image Autocorrelation")
 plt.subplot(2,2,4)
-plt.imshow(deconvolved_acorr_avg, cmap=colormap)
+plt.imshow(sim.emphasized_image(deconvolved_acorr_avg), cmap=colormap)
 plt.title("Avg Deconvolved Autocorrelation")
+
+plt.show()
