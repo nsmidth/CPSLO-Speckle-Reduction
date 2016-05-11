@@ -70,10 +70,12 @@ class atmospheric_simulation():
     circle_s = circle_s < (diameter_s/2)**2 
     # Convert boolean circle to int
     circle_s= circle_s.astype(np.int64)
+    
     # Scale aperture image power to 1
     aperture_screen_power = np.sum(np.power(circle_s,2))
     # Save aperture image in units of meters
     self.aperture_screen_s = np.divide(circle_s,np.sqrt(aperture_screen_power))
+    
     # Calculate effective size of sampled aperture image in meters
     X_aperture_s_meff = self.focal_length*self.wavelength/self.pixel
     
