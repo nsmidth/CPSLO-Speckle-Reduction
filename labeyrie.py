@@ -3,7 +3,7 @@
 
 # Included modules
 import sys
-from labeyrieClasses import target,deconvolved, photometry, camsky
+from labeyrie_classes import target,deconvolved, photometry, camsky
 import tkinter as tk
 import matplotlib.pyplot as plt
 import numpy as np

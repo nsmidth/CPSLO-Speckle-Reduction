@@ -2,7 +2,7 @@
 
 # Import Modules
 import sys, os
-from labeyrieClasses import target, fftw_psd
+from labeyrie_classes import target, fftw_psd
 import tkinter as tk
 from tkinter import filedialog
 from cython_psd import cython_psd
@@ -20,8 +20,8 @@ root = tk.Tk()
 root.withdraw()
 
 # Prompt for FITS file locations
-#raw.fits.fitsFileName = filedialog.askopenfilename(title="Select FITS file for test data")
-raw.fits.fileName = "/home/niels/Documents/FITS/KP330.fits"
+raw.fits.fitsFileName = filedialog.askopenfilename(title="Select FITS file for test data")
+#raw.fits.fileName = "/home/niels/Documents/FITS/KP330.fits"
 
 # Import FITS data
 raw.fits.read(numDimensions=3)
