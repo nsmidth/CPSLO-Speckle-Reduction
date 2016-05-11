@@ -65,6 +65,17 @@ for i in np.arange(photons_n):
   # Add Poisson Noise
   img_shot_noise[i] = sim.add_noise(sim.binary_img,photons=photons[i],gaussian_var=0)
 
+## Adding gaussian and gaussian/shot noise
+# Gaussian noise variance
+var = 1E-3
+# Noise Images
+img_gaussian_noise = np.zeros((nxy,nxy)) 
+img_gaussian_shot_noise = np.zeros((nxy,nxy))  
+# Calculate Noise Images
+img_gaussian_noise = sim.add_noise(sim.binary_img,photons=0,gaussian_var=var)
+img_gaussian_shot_noise = sim.add_noise(sim.binary_img,photons=photons[1],gaussian_var=var)
+
+  
 ##Plots
 colormap = "jet"
 
@@ -102,6 +113,19 @@ for i in np.arange(2):
   plt.imshow(img_shot_noise[i])
   plt.title(("Sensor Image (" + str(photons[i]) + " Photons)"))
 
+plt.figure(figsize = (10,16))
+plt.subplot(2,2,1)
+plt.title("Noiseless")
+plt.imshow(sim.binary_img)
+plt.subplot(2,2,2)
+plt.title("Shot Noise")
+plt.imshow(img_shot_noise[1])
+plt.subplot(2,2,3)
+plt.title("Gaussian Noise")
+plt.imshow(img_gaussian_noise)
+plt.subplot(2,2,4)
+plt.title("Shot + Gaussian Noise")
+plt.imshow(img_gaussian_shot_noise)
   
 plt.show()
 
