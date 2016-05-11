@@ -214,7 +214,7 @@ class deconvolved():
 # Output image = 512x257 ndarray of np.double32
 def fftw_psd(input_img):
     # Import shared C library
-    fftw_psd_dll = ctypes.CDLL('/home/niels/Dropbox/Thesis/Python/dev/fftw_psd.so')
+    fftw_psd_dll = ctypes.CDLL('/home/niels/Dropbox/Thesis/Python/fftw_psd.so')
     # Calculating imgsize parameters
     # Size of image Height
     imgsize = 512
