@@ -37,6 +37,7 @@ class atmospheric_simulation():
     # Initializing Empty Images
     self.input_img = np.zeros((nxy,nxy)) # Input binary star object
     self.aperture_screen_s = np.zeros((nxy,nxy)) #  Aperture screen
+    self.phase_screen = np.zeros((nxy,nxy)) #  Phase screen values (unwrapped)
     self.atmosphere_screen = np.zeros((nxy,nxy)) #  Atmosphere screen
     self.pupil_screen = np.zeros((nxy,nxy)) # Total Pupil Screen
     self.psf = np.zeros((nxy,nxy)) # PSF of aperture/atmosphere
@@ -114,9 +115,9 @@ class atmospheric_simulation():
     # Construct phase screen spectrum
     phase_screen_f = np.multiply(np.sqrt(phase_PSD),np.exp(1j*phase_phase))
     # Calculate phase screen
-    phase_screen = np.real(ifft2(fftshift(phase_screen_f)*nxy*nxy))
+    self.phase_screen = np.real(ifft2(fftshift(phase_screen_f)*nxy*nxy))
     # Create complex atmospheric screen
-    self.atmosphere_screen = np.exp(np.multiply(1j,phase_screen))
+    self.atmosphere_screen = np.exp(np.multiply(1j,self.phase_screen))
     
   def get_psf(self):
     # Generate total screen, combining atmosphere and aperture
