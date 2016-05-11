@@ -34,6 +34,15 @@ class atmospheric_simulation():
     self.alpha = 1/100 # Multiplicative constant
     self.r0 = 0.2 # Fried Parameter
     
+    # Initializing Empty Images
+    self.input_img = np.zeros((nxy,nxy)) # Input binary star object
+    self.aperture_screen_s = np.zeros((nxy,nxy)) #  Aperture screen
+    self.atmosphere_screen = np.zeros((nxy,nxy)) #  Atmosphere screen
+    self.pupil_screen = np.zeros((nxy,nxy)) # Total Pupil Screen
+    self.psf = np.zeros((nxy,nxy)) # PSF of aperture/atmosphere
+    self.binary_img = np.zeros((nxy,nxy)) # Simulated Binary Image
+    
+    
   def create_input_image(self): 
     # Calculate coordinates of stars
     x = int( self.rho/(2*self.platescale) * np.cos(np.deg2rad(self.phi)) )
@@ -42,8 +51,7 @@ class atmospheric_simulation():
     y1 = self.center + y
     x2 = self.center - x
     y2 = self.center - y    
-    # Empty input image
-    self.input_img = np.zeros((nxy,nxy)) 
+
     # Place stars on image
     self.input_img[y1,x1] = 1 
     self.input_img[y2,x2] = 1
