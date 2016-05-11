@@ -3,25 +3,66 @@ import matplotlib.pyplot as plt
 import numpy as np
 from classes_atmos_sim import atmospheric_simulation
 
+# Size of simulated image
 nxy = 512
 
+# Instantiate simulation object
 sim = atmospheric_simulation()
 
+## Assign all variables of simulation
+# Aperture/Telescope Specifications:
+sim.diameter_m = 2.133 # Mirror diameter in meters
+sim.focal_length = 129.69 # Effective focal length in meters
+
+# Camera Specs
+sim.wavelength = 0.8E-6 # Wavelength of light
+sim.pixel = 8E-6 # length of pixel side in m
+sim.bits = 14 # Bits in camera ADC
+sim.nxy = nxy # Length of sensor side in pixels
+sim.center = int(nxy/2) # Center of sensor in pixels
+sim.platescale = 206265*sim.pixel/(sim.focal_length) # Calculate plate scale
+sim.gamma = 1.6 # Gamma correction
+
+# Binary star specs
+sim.rho = 0.5 # Set separation in arcseconds
+sim.phi = 45 # Set angle in degrees  
+
+# Atmospheric Specs
+sim.alpha = 1/100 # Multiplicative constant
+sim.r0 = 0.2 # Fried Parameter
+
+# Initializing Empty Images
+sim.input_img = np.zeros((nxy,nxy)) # Input binary star object
+sim.aperture_screen_s = np.zeros((nxy,nxy)) #  Aperture screen
+sim.phase_screen = np.zeros((nxy,nxy)) #  Phase screen values (unwrapped)
+sim.atmosphere_screen = np.zeros((nxy,nxy)) #  Atmosphere screen
+sim.pupil_screen = np.zeros((nxy,nxy)) # Total Pupil Screen
+sim.psf = np.zeros((nxy,nxy)) # PSF of aperture/atmosphere
+sim.binary_img = np.zeros((nxy,nxy)) # Simulated Binary Image
+
+## Run Simulation
+# Create ideal binary star image
 sim.create_input_image()
+# Create telescope aperture image
 sim.create_aperture()
+# Create atmospheric phase screen image
 sim.create_atmosphere_screen()
+# Calculate PSF of aperture and atmospheric phase screen
 sim.get_psf()
+# Calculate simulated binary star image from PSF
 sim.get_binary()
-img_noisy = sim.add_noise(sim.psf,photons=1E5,gaussian_var=1E-3)
+
 
 ## Adding photon shot noise
+# Photon numbers to test
 photons = (1000,100000)
+# Number of tests to run
 photons_n = len(photons)
-
+# Shot Noise Images
 img_shot_noise = np.zeros((photons_n,nxy,nxy))
-
+# Loop through photon values
 for i in np.arange(photons_n):
-  # Use image as lambda to get random values based on poisson distribution at each point
+  # Add Poisson Noise
   img_shot_noise[i] = sim.add_noise(sim.binary_img,photons=photons[i],gaussian_var=0)
 
 ##Plots
