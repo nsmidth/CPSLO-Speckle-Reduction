@@ -120,15 +120,23 @@ class atmospheric_simulation():
     self.psf = np.power(np.abs(self.psf),2)
     # Normalize PSF
     psf_power = np.sum(np.power(self.psf,2))
-    self.psf = np.divide(self.psf,psf_power)
+    self.psf = np.divide(self.psf,np.sqrt(psf_power))
     # Gamma correct PSF
-    self.psf = np.power(self.psf,1/self.gamma)  
-                     
+    self.psf = np.power(self.psf,1/self.gamma) 
+    # Normalize PSF
+    psf_power = np.sum(np.power(self.psf,2))
+    self.psf = np.divide(self.psf,np.sqrt(psf_power))
+                      
   def get_binary(self):
     # Convolve PSF with input image using FFT
     self.binary_img = fftconvolve(self.input_img,self.psf)
     # Save the center 512x512 image
     self.binary_img = self.binary_img[self.center:self.center+self.nxy,self.center:self.center+self.nxy]
+    
+    # Normalize binary
+    binary_power = np.sum(np.power(self.binary_img,2))
+    self.binary_img = np.divide(self.binary_img,np.sqrt(binary_power))
+    
   def add_noise(self,img,photons,gaussian_var):
     
     # Array to be returned
@@ -142,6 +150,10 @@ class atmospheric_simulation():
       img_scaled = img_normalized*photons
       # Calculate image with shot noise
       img_noisy = np.random.poisson(lam=img_scaled, size=None)
+      # Normalize noisy image
+      noisy_power = np.sum(np.power(img_noisy,2))
+      img_noisy = np.divide(img_noisy,np.sqrt(noisy_power))
+      
       
     # If gaussian_var > 0, add additive noise
     if (gaussian_var > 0):  
@@ -151,43 +163,9 @@ class atmospheric_simulation():
       img_noisy = img_noisy+noise
       # Turn all negative pixels to 0
       img_noisy[img_noisy<0] = 0   
+      # Normalize noisy image
+      noisy_power = np.sum(np.power(img_noisy,2))
+      img_noisy = np.divide(img_noisy,np.sqrt(noisy_power))
     
     # Return noisy image
     return img_noisy  
-  
-  ## Adding noise to images
-def add_gaus_noise(img, var):
-    # Size of input image?
-    nxy = np.shape(img)[0]
-    
-    # Array to be returned
-    img_noisy = np.zeros((nxy,nxy))    
-    
-    # Create noise image
-    noise = np.random.normal(loc=0,scale=var,size=(nxy,nxy))
-    # Add noise image to simulated image
-    img_noisy = img+noise
-    # Turn all negative pixels to 0
-    img_noisy[img_noisy<0] = 0
-    
-    # Return noisy image
-    return img_noisy
-  
-def add_shot_noise(img, photons):
-    # Size of input image?
-    nxy = np.shape(img)[0]    
-    
-    # Empty arrays to use
-    img_normalized = np.zeros((nxy,nxy))
-    img_scaled = np.zeros((nxy,nxy))
-    img_shot_noise = np.zeros((nxy,nxy))
-    
-    # Normalize input image
-    img_normalized = np.abs(img)/(np.sum(img))
-    # Scale image to number of photons desired
-    img_scaled = img_normalized*photons
-    # Calculate image with shot noise
-    img_shot_noise = np.random.poisson(lam=img_scaled, size=None)
-
-    # Return noisy image
-    return img_shot_noise
