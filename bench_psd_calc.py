@@ -20,7 +20,7 @@ root = tk.Tk()
 root.withdraw()
 
 # Prompt for FITS file locations
-raw.fits.fitsFileName = filedialog.askopenfilename(title="Select FITS file for test data")
+raw.fits.fileName = filedialog.askopenfilename(title="Select FITS file for test data")
 #raw.fits.fileName = "/home/niels/Documents/FITS/KP330.fits"
 
 # Import FITS data
