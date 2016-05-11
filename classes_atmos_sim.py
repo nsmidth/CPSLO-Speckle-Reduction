@@ -60,6 +60,21 @@ class atmospheric_simulation():
     input_img_power = np.sum(np.power(self.input_img,2))
     self.input_img = np.divide(self.input_img,np.sqrt(input_img_power))
     
+  def emphasized_image(self, img):
+    # Convolve small circles with input images to make them more visible
+    circle_radius = 3
+    # Create meshgrid
+    xx,yy = np.meshgrid(np.arange(self.nxy),np.arange(self.nxy))
+    # Calculate grid of distances from circle center
+    radius = (xx-center) ** 2 + (yy-center) ** 2 
+    # Draw boolean circle
+    circle = (radius < (circle_radius**2)).astype(np.int64)
+    # Convolve circle with difficult to see images
+    img_emph = fftconvolve(img,circle)[self.center:self.center+self.nxy,self.center:self.center+self.nxy]
+    # Return emphasized image
+    return img_emph
+
+    
   def create_aperture(self):
     ## Telescope aperture creation:
     # Total spatial sample range
