@@ -2,7 +2,7 @@
 
 # Import Modules
 import sys, os
-from labeyrie_classes import target, fftw_psd
+from classes_labeyrie import target, fftw_psd
 import tkinter as tk
 from tkinter import filedialog
 from cython_psd import cython_psd

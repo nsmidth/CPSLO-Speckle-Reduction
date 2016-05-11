@@ -2,7 +2,7 @@
 
 # Import Modules
 import sys, os
-from labeyrie_classes import target
+from classes_labeyrie import target
 import tkinter as tk
 from tkinter import filedialog
 

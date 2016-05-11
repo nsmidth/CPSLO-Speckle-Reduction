@@ -266,7 +266,7 @@ plt.imshow(deconvolved_acorr_avg, cmap=colormap)
 plt.title("Avg Deconvolved Autocorrelation")
 
 import sys, os
-from labeyrieClasses import target,deconvolved
+from classes_labeyrie import target,deconvolved
 import tkinter as tk
 from tkinter import filedialog
 
