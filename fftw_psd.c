@@ -8,6 +8,8 @@
 #define IMG_SIZE 512
 
 // Compile with : 
+//  Using makefile : make -f fftw_psd_makefile
+// or by hand
 //  gcc -o fftw_psd.so -shared -fPIC fftw_psd.c
 
 

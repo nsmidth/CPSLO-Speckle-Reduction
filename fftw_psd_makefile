@@ -4,3 +4,6 @@ all:
 	gcc fftw_psd.o -lfftw3 -lm
 	rm fftw_psd.o
 	mv a.out fftw_psd
+
+# Makefile for FFTW PSD wrapped C code
+# Execute with : make -f fftw_psd_makefile
