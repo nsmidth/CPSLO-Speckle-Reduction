@@ -193,3 +193,10 @@ class atmospheric_simulation():
     
     # Return noisy image
     return img_noisy  
+  
+# Normalize image between 0 and a given max
+def normalize(img, norm_max):
+  img_new = np.array(img)
+  img_new -= img.min()
+  img_new = img_new*norm_max/img_new.max()
+  return img_new
