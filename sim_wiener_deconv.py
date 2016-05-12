@@ -50,7 +50,6 @@ sim.binary_img = np.zeros((nxy,nxy)) # Simulated Binary Image
 
 ## Run Simulation
 # Create image accumulation arrays
-psf_avg = np.zeros((nxy,nxy))
 binary_psd_avg = np.zeros((nxy,nxy))
 reference_psd_avg = np.zeros((nxy,nxy))
 
@@ -70,9 +69,6 @@ for i in np.arange(n_exposures):
   sim.psf = sim.add_noise(sim.psf,1E5,1E-4)
   sim.binary_img = sim.add_noise(sim.binary_img,1E5,1E-4)
   
-  # Integrate PSFs
-  psf_avg += sim.psf
-
   # Calculate PSD of binary star image
   binary_psd = np.power(np.abs(fftshift(fft2(sim.binary_img))),2)
   # Integrate PSDs
@@ -84,15 +80,10 @@ for i in np.arange(n_exposures):
   reference_psd_avg += reference_psd
     
 # Calculate average of PSF/PSDs
-psf_avg /= n_exposures
 binary_psd_avg /= n_exposures
 reference_psd_avg /= n_exposures
 
-# Calculate PSDs
-input_img_psd = np.power(np.abs(fftshift(fft2(sim.input_img))),2)
-
 # Calculate Acorrs
-input_img_acorr = np.abs(fftshift(ifft2(input_img_psd)))
 reference_acorr_avg = np.abs(fftshift(ifft2(reference_psd_avg)))
 binary_acorr_avg = np.abs(fftshift(ifft2(binary_psd_avg)))
 
@@ -104,58 +95,24 @@ deconvolved_acorr_avg = np.abs(fftshift(ifft2(deconvolved_psd_avg)))
 
 colormap = "jet"
 
-plt.figure(figsize = (16,16), dpi = 50)
-plt.subplot(3,3,1)
-plt.imshow(sim.emphasized_image(sim.input_img), cmap=colormap)
-plt.title("Binary Star Object")
-plt.subplot(3,3,2)
-plt.imshow(sim.psf, cmap=colormap)
-plt.title("Atmospheric/Aperture PSF")
-plt.subplot(3,3,3)
-plt.imshow(sim.binary_img, cmap=colormap)
-plt.title("Binary Star Image")
-plt.subplot(3,3,4)
-plt.imshow(np.log10(input_img_psd), cmap=colormap)
-plt.title("Binary Star Object PSD")
-plt.subplot(3,3,5)
-plt.imshow(np.log10(reference_psd_avg), cmap=colormap)
-plt.title("Avg PSF PSD")
-plt.subplot(3,3,6)
-plt.imshow(np.log10(binary_psd_avg), cmap=colormap)
-plt.title("Avg Binary Star Image PSD")
-plt.subplot(3,3,7)
-plt.imshow(sim.emphasized_image(input_img_acorr), cmap=colormap)
-plt.title("Binary Star Object Autocorrelation")
-plt.subplot(3,3,8)
-plt.imshow(reference_acorr_avg, cmap=colormap)
-plt.title("Avg PSF Autocorrelation")
-plt.subplot(3,3,9)
-plt.imshow(binary_acorr_avg, cmap=colormap)
-plt.title("Avg Binary Star Image Autocorrelation")
-
-fig = plt.figure(figsize = (10,10), dpi = 100)
-ax = fig.gca(projection='3d')
-[xx,yy] = np.meshgrid(np.arange(nxy), np.arange(nxy))
-ax.plot_surface(X=xx,
-                Y=yy,
-                Z=np.log10(reference_psd_avg),
-                cmap="jet",
-                linewidth=0, 
-                antialiased=True)
-plt.title("Reference Star PSD")
-
 plt.figure(figsize = (14,14), dpi = 100)
-plt.subplot(2,2,1)
+plt.subplot(2,3,1)
+plt.imshow(np.log10(reference_psd_avg), cmap=colormap)
+plt.title("Reference Star Image PSD")
+plt.subplot(2,3,2)
 plt.imshow(np.log10(binary_psd_avg), cmap=colormap)
-plt.title("Avg Binary Star Image PSD")
-plt.subplot(2,2,2)
+plt.title("Binary Star Image PSD")
+plt.subplot(2,3,3)
 plt.imshow( np.log10(deconvolved_psd_avg), cmap=colormap)
-plt.title("Avg Deconvolved PSD")
-plt.subplot(2,2,3)
+plt.title("Deconvolved PSD")
+plt.subplot(2,3,4)
+plt.imshow(reference_acorr_avg, cmap=colormap)
+plt.title("Reference Star Image PSD")
+plt.subplot(2,3,5)
 plt.imshow(binary_acorr_avg, cmap=colormap)
-plt.title("Avg Binary Star Image Autocorrelation")
-plt.subplot(2,2,4)
+plt.title("Binary Star Image Autocorrelation")
+plt.subplot(2,3,6)
 plt.imshow(sim.emphasized_image(deconvolved_acorr_avg), cmap=colormap)
-plt.title("Avg Deconvolved Autocorrelation")
+plt.title("Deconvolved Autocorrelation")
 
 plt.show()
