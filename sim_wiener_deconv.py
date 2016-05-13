@@ -12,7 +12,7 @@ from classes_atmos_sim import atmospheric_simulation
 # Image specs
 nxy = 512
 center = int(nxy/2)
-n_exposures = 1 # Number of simulated exposures
+n_exposures = 100 # Number of simulated exposures
 
 # Instantiate simulation object
 sim = atmospheric_simulation()
@@ -79,11 +79,15 @@ for i in np.arange(n_exposures):
   # Integrate PSDs
   reference_psd_avg += reference_psd
     
+# Calculate PSD of input image
+input_psd = np.power(np.abs(fftshift(fft2(sim.input_img))),2)
+    
 # Calculate average of PSF/PSDs
 binary_psd_avg /= n_exposures
 reference_psd_avg /= n_exposures
 
 # Calculate Acorrs
+input_acorr = np.abs(fftshift(ifft2(input_psd)))
 reference_acorr_avg = np.abs(fftshift(ifft2(reference_psd_avg)))
 binary_acorr_avg = np.abs(fftshift(ifft2(binary_psd_avg)))
 
@@ -101,12 +105,6 @@ f_hat_inverse = np.abs(fftshift(ifft2(F_hat_inverse)))
 k = 5E1
 F_hat_wiener1 = G*(1/H)*((H**2)/(H**2+k))
 f_hat_wiener1 = np.abs(fftshift(ifft2(F_hat_wiener1)))
-
-## Wiener filtering w/ pupil image
-k = 5E-2
-S_F = sim.aperture_screen_s + 1E-12 # Using pupil image 
-F_hat_wiener2 = G*(1/H)*((H**2)/(H**2+k/S_F))
-f_hat_wiener2 = np.abs(fftshift(ifft2(F_hat_wiener2)))
 
 colormap = "jet"
 
@@ -130,44 +128,12 @@ plt.subplot(2,3,6)
 plt.imshow(f_hat_inverse, cmap=colormap)
 plt.title("Deconvolved Autocorrelation")
 
-plt.figure(figsize = (14,18), dpi = 100)
-plt.subplot(2,3,1)
-plt.imshow(np.log10(H), cmap=colormap)
-plt.title("Reference Star Image PSD")
-plt.subplot(2,3,2)
-plt.imshow(np.log10(G), cmap=colormap)
-plt.title("Binary Star Image PSD")
-plt.subplot(2,3,3)
+plt.figure(figsize = (6,10), dpi = 100)
+plt.subplot(1,2,1)
 plt.imshow( np.log10(F_hat_wiener1), cmap=colormap)
 plt.title("Deconvolved PSD")
-plt.subplot(2,3,4)
-plt.imshow(h, cmap=colormap)
-plt.title("Reference Star Image PSD")
-plt.subplot(2,3,5)
-plt.imshow(g, cmap=colormap)
-plt.title("Binary Star Image Autocorrelation")
-plt.subplot(2,3,6)
+plt.subplot(1,2,2)
 plt.imshow(f_hat_wiener1, cmap=colormap)
-plt.title("Deconvolved Autocorrelation")
-
-plt.figure(figsize = (14,18), dpi = 100)
-plt.subplot(2,3,1)
-plt.imshow(np.log10(H), cmap=colormap)
-plt.title("Reference Star Image PSD")
-plt.subplot(2,3,2)
-plt.imshow(np.log10(G), cmap=colormap)
-plt.title("Binary Star Image PSD")
-plt.subplot(2,3,3)
-plt.imshow( np.log10(F_hat_wiener2), cmap=colormap)
-plt.title("Deconvolved PSD")
-plt.subplot(2,3,4)
-plt.imshow(h, cmap=colormap)
-plt.title("Reference Star Image PSD")
-plt.subplot(2,3,5)
-plt.imshow(g, cmap=colormap)
-plt.title("Binary Star Image Autocorrelation")
-plt.subplot(2,3,6)
-plt.imshow(f_hat_wiener2, cmap=colormap)
 plt.title("Deconvolved Autocorrelation")
 
 plt.show()
