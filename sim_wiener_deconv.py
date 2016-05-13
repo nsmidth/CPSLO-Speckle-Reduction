@@ -102,7 +102,7 @@ F_hat_inverse = G/H # Inverse filtering deconvolution
 f_hat_inverse = np.abs(fftshift(ifft2(F_hat_inverse)))
 
 ## Simplified Wiener filtering
-k = 5E1
+k = 5E0
 F_hat_wiener1 = G*(1/H)*((H**2)/(H**2+k))
 f_hat_wiener1 = np.abs(fftshift(ifft2(F_hat_wiener1)))
 
@@ -120,7 +120,7 @@ plt.imshow( np.log10(F_hat_inverse), cmap=colormap)
 plt.title("Deconvolved PSD")
 plt.subplot(2,3,4)
 plt.imshow(h, cmap=colormap)
-plt.title("Reference Star Image PSD")
+plt.title("Reference Star Image Autocorrelation")
 plt.subplot(2,3,5)
 plt.imshow(g, cmap=colormap)
 plt.title("Binary Star Image Autocorrelation")
@@ -135,5 +135,9 @@ plt.title("Deconvolved PSD")
 plt.subplot(1,2,2)
 plt.imshow(f_hat_wiener1, cmap=colormap)
 plt.title("Deconvolved Autocorrelation")
+
+plt.figure(figsize = (10,10), dpi = 100)
+plt.imshow((H**2)/(H**2+k), cmap=colormap)
+plt.title("Simplified Wiener")
 
 plt.show()
