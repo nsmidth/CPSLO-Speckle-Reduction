@@ -10,8 +10,8 @@ reference = target()
 deconv = deconvolved()
 
 # Define filenames for each target
-binary.fits.fileName = "/home/niels/Documents/FITS/KP336.fits"
-reference.fits.fileName = "/home/niels/Documents/FITS/KP338.fits"
+binary.fits.fileName = "/home/niels/Documents/FITS/KP330.fits"
+reference.fits.fileName = "/home/niels/Documents/FITS/KP331.fits"
 
 # Import each target
 binary.fits.read(numDimensions=3,printInfo=False)
@@ -31,6 +31,8 @@ deconv.psdFilter(lpfRadius = 20, interference=False)
 
 # Get autocorrelogram
 deconv.acorrCalc()
+
+colormap = "jet"
 
 plt.figure(figsize = (12,6), dpi = 100)
 plt.subplot(1,2,1)
