@@ -9,9 +9,14 @@ from scipy.signal import argrelextrema
 nxy = 512
 center = int(nxy/2)
 
+## Calculate scaling factors for sampled aperture image
+diameter_m = 2.133 # Mirror diameter in [m]
+pixel = 8E-6 # Dimension of a pixel
+focal_length = 129.69 # Effective focal length in meters
+wavelength = 0.8E-6 # Wavelength of light
+platescale = 206265 * pixel / focal_length # Calculate system's plate scale
+
 ## Creating Binary Star Input Image
-# For KP 2.1m telescope, input image is in units of 25.44 milliarcseconds
-platescale = 0.02544 # Plate scale in arcsec/pixel
 rho = 0.5 # Set separation in arcseconds
 phi = 0 # Set angle in degrees
 # Calculate coordinates of stars
@@ -29,12 +34,6 @@ input_img[y2,x2] = 1
 # Scale image power to 1
 input_img_power = np.sum(np.power(input_img,2))
 input_img = np.divide(input_img,np.sqrt(input_img_power))
-
-## Calculate scaling factors for sampled aperture image
-diameter_m = 2.133 # Mirror diameter in [m]
-pixel = 8E-6 # Dimension of a pixel
-focal_length = 129.69 # Effective focal length in meters
-wavelength = 0.8E-6 # Wavelength of light
 
 # Total spatial sample range
 X_aperture_s = 1/pixel 
