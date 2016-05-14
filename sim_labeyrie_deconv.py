@@ -48,8 +48,6 @@ sim.pupil_screen = np.zeros((nxy,nxy)) # Total Pupil Screen
 sim.psf = np.zeros((nxy,nxy)) # PSF of aperture/atmosphere
 sim.binary_img = np.zeros((nxy,nxy)) # Simulated Binary Image
 
-
-
 ## Run Simulation
 # Create image accumulation arrays
 psf_avg = np.zeros((nxy,nxy))
@@ -97,11 +95,7 @@ binary_acorr_avg = np.abs(fftshift(ifft2(binary_psd_avg)))
 
 # Deconvolve reference from binary
 deconvolved_psd_avg = np.divide(binary_psd_avg, reference_psd_avg)
-# LPF Filter
-
-
 deconvolved_acorr_avg = np.abs(fftshift(ifft2(deconvolved_psd_avg)))
-#deconvolved_acorr_filered_avg = np.abs(fftshift(ifft2(deconvolved_psd_filtered_avg)))
 
 colormap = "jet"
 
