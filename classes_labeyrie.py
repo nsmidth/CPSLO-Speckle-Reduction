@@ -137,7 +137,7 @@ class deconvolved():
         self.acorr = fitsData()        # Holds autocorrelation of PSD
 
     # Deconvolve PSDs
-    def psdDeconvolve(self, psdBinary, psdReference, k=None, lpfRadius=None):
+    def psdDeconvolveWiener(self, psdBinary, psdReference, k=None, lpfRadius=None):
         imgSize = np.shape(psdReference)[0] # Calculate dimension of image
         imgCenter = int(imgSize/2)          # Center index of image
 
@@ -156,6 +156,24 @@ class deconvolved():
       
         # Perform wiener filtering
         self.psd.data = psdBinary*(1/psdReference)*((psdReference**2)/(psdReference**2+k/lpf))
+        
+    # Deconvolve PSDs
+    def psdDeconvolveLPF(self, psdBinary, psdReference, lpfRadius=None):
+        imgSize = np.shape(psdReference)[0] # Calculate dimension of image
+        imgCenter = int(imgSize/2)          # Center index of image
+
+        # Create centered meshgrid of image
+        xx,yy = np.meshgrid(np.arange(imgSize),np.arange(imgSize))
+        xx = np.subtract(xx,imgCenter)
+        yy = np.subtract(yy,imgCenter)
+        rr = np.power(np.power(xx,2)+np.power(yy,2),0.5)
+      
+        # Create LPF filter image if specified
+        lpf = np.exp(-(np.power(rr,2)/(2*np.power(lpfRadius,2))))
+      
+        # Perform wiener filtering
+        self.psd.data = psdBinary*(1/psdReference)*lpf
+                
         
     # Calculate autocorrelation from PSD
     def acorrCalc(self):
