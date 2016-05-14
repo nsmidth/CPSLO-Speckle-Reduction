@@ -49,8 +49,7 @@ deconv.acorr.view(title="Autocorrelation")
 
 # Write acorr to file
 deconv.acorr.fileName = ''
-deconv.acorr.fileName = filedialog.asksaveasfilename(defaultextension=".fits",
-                                                     initialdir=(os.path.split(reference.psd.fileName)[0]+'/'))
+deconv.acorr.fileName = filedialog.asksaveasfilename(defaultextension=".fits",initialdir=(os.path.split(reference.psd.fileName)[0]+'/'))
 if (deconv.acorr.fileName != ''):
     deconv.acorr.write()
 
