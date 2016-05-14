@@ -1,5 +1,4 @@
 import sys, os
-sys.path.append('/home/niels/Dropbox/Thesis/Python/')
 from classes_labeyrie import target,deconvolved
 import tkinter as tk
 from tkinter import filedialog
