@@ -101,7 +101,7 @@ class atmospheric_simulation():
     self.aperture_screen_s = np.divide(circle_s,np.sqrt(aperture_screen_power))
     
     # Calculate effective size of sampled aperture image in meters
-    X_aperture_s_meff = self.focal_length*self.wavelength/self.pixel
+    self.X_aperture_s_meff = self.focal_length*self.wavelength/self.pixel
     
   def create_atmosphere_screen(self):
     ## Phase screen creation:
