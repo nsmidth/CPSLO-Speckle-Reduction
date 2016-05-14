@@ -35,10 +35,9 @@ reference.psd.fileName = filedialog.askopenfilename(title="Select REFERENCE FITS
 reference.psd.read()
 
 # Deconvolve reference and binary stars
-deconv.psdDeconvolve(binary.psd.data,reference.psd.data,1e-12)
+#deconv.psdDeconvolveWiener(binary.psd.data,reference.psd.data, lpfRadius = 30, k=1e-7)
+deconv.psdDeconvolveLPF(binary.psd.data,reference.psd.data, lpfRadius = 20)
 
-# Perform filtering on output star object
-deconv.psdFilter(lpfRadius = 20, interference=True)
 
 # Get autocorrelogram
 deconv.acorrCalc()
