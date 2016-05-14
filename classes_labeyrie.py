@@ -134,69 +134,35 @@ class deconvolved():
     # Init
     def __init__(self):
         self.psd = fitsData()          # Holds deconvolved PSD
-        self.psdFiltered = fitsData()  # Holds filtered PSD
         self.acorr = fitsData()        # Holds autocorrelation of PSD
 
     # Deconvolve PSDs
-    def psdDeconvolve(self, psdBinary, psdReference, constant):
-        # Divide double PSD by modified reference single PSD to deconvolve
-        self.psd.data = np.divide(psdBinary, (psdReference+constant))
+    def psdDeconvolve(self, psdBinary, psdReference, k=None, lpfRadius=None):
+        imgSize = np.shape(psdReference)[0] # Calculate dimension of image
+        imgCenter = int(imgSize/2)          # Center index of image
 
-    # psdFilter(LPF, HPF, Interference): Filters PSD to make PSDFiltered
-    # LPF and HPF are gaussian shape
-    # Interference filter only works for images with even number of pixels to a side
-    def psdFilter(self, lpfRadius=None, hpfRadius=None, interference=False):
-
-        imgSize = np.shape(self.psd.data)[0] # Calculate dimension of image
-        imgCenter = imgSize/2         # Center index of image
-
-        # Start filtered output as unfiltered psd
-        self.psdFiltered.data = np.array(self.psd.data)
-
-        # Perform LPF filtering if user selected a radius
+        # Create centered meshgrid of image
+        xx,yy = np.meshgrid(np.arange(imgSize),np.arange(imgSize))
+        xx = np.subtract(xx,imgCenter)
+        yy = np.subtract(yy,imgCenter)
+        rr = np.power(np.power(xx,2)+np.power(yy,2),0.5)
+      
+        # Create LPF filter image if specified
         if (lpfRadius != None):
-
-            # Save present input values
-            psdTemp = np.array(self.psdFiltered.data)
-
-            # Create centered meshgrid of image
-            xx,yy = np.meshgrid(np.arange(imgSize),np.arange(imgSize))
-            xx = np.subtract(xx,imgCenter)
-            yy = np.subtract(yy,imgCenter)
-            rr = np.power(np.power(xx,2)+np.power(yy,2),0.5)
-
-            # Create LPF filter image
-            filterH = np.exp(-(np.power(rr,2)/(2*np.power(lpfRadius,2))))
-
-            # Filter the PSD with LPF
-            self.psdFiltered.data = np.multiply(psdTemp,filterH)
-
-        # Perform HPF filtering if user selected a radius
-        if (hpfRadius != None):
-            print("HPF Not Implemented Yet")
-            pass
-
-        # Perform interference filtering if user enabled it
-        if (interference == True):
-            # Copy image to be filtered
-            psdTemp = np.array(self.psdFiltered.data)
-
-            # Perform filtering on vertical interference
-            for y in np.arange(imgSize):
-                avg = np.average((psdTemp[y,imgCenter+1],psdTemp[y,imgCenter-1]))
-                self.psdFiltered.data[y,imgCenter]=avg
-
-            # Perform filtering on horizontal interference
-            for x in np.arange(imgSize):
-                avg = np.average((psdTemp[imgCenter+1,x],psdTemp[imgCenter-1,x]))
-                self.psdFiltered.data[imgCenter,x]=avg
-
-    # Calculate autocorrelation from filtered PSD
+          lpf = np.exp(-(np.power(rr,2)/(2*np.power(lpfRadius,2))))
+        else: 
+          lpf = np.zeros((imgSize,imgSize))
+          lpf.fill(1)
+      
+        # Perform wiener filtering
+        self.psd.data = psdBinary*(1/psdReference)*((psdReference**2)/(psdReference**2+k/lpf))
+        
+    # Calculate autocorrelation from PSD
     def acorrCalc(self):
         # Because we normalized after FFT by multiplying by 1/N^2, and ifft
         #  function does this as well, we need to multiply by N^2 before ifft
         #  to prevent performing normalization twice
-        self.acorr.data = self.psdFiltered.data*(self.psdFiltered.data.size)
+        self.acorr.data = self.psd.data*(self.psd.data.size)
 
         # Do iFFT on PSD's, bringing back to spatial domain
         # This should give us the autocorrelations of original images
