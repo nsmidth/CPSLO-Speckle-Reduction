@@ -2,8 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Lens Parameters [mm]
-diameter = 2100
-focal_length = 5523
+diameter = 2133
+focal_length = 5584
 
 # Equation for reflector's shape
 def parabola(x):
