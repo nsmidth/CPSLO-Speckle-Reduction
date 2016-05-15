@@ -5,14 +5,22 @@ from tkinter import filedialog
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.fftpack import fft2, ifft2, fftshift
+import tkinter as tk
+from tkinter import filedialog
+
+# Start up Tkinter
+root = tk.Tk()
+root.withdraw()
 
 binary = target()
 reference = target()
 deconv = deconvolved()
 
 # Define filenames for each target
-binary.fits.fileName = "/home/niels/Documents/FITS/KP330.fits"
-reference.fits.fileName = "/home/niels/Documents/FITS/KP331.fits"
+binary.fits.fileName = filedialog.askopenfilename(title="Select Binary FITS file for test data")
+reference.fits.fileName = filedialog.askopenfilename(title="Select Reference FITS file for test data")
+#binary.fits.fileName = "/home/niels/Documents/FITS/KP330.fits"
+#reference.fits.fileName = "/home/niels/Documents/FITS/KP331.fits"
 
 # Import each target
 binary.fits.read(numDimensions=3,printInfo=False)
