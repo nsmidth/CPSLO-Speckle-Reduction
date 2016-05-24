@@ -17,8 +17,8 @@ reference = target()
 deconv = deconvolved()
 
 # Define filenames for each target
-binary.fits.fileName = filedialog.askopenfilename(title="Select Binary FITS file for test data")
-reference.fits.fileName = filedialog.askopenfilename(title="Select Reference FITS file for test data")
+binary.fits.fileName = filedialog.askopenfilename(title="Select Binary FITS file")
+reference.fits.fileName = filedialog.askopenfilename(title="Select Reference FITS file")
 #binary.fits.fileName = "/home/niels/Documents/FITS/KP330.fits"
 #reference.fits.fileName = "/home/niels/Documents/FITS/KP331.fits"
 
