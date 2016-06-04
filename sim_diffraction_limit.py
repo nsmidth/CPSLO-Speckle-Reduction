@@ -66,7 +66,7 @@ plt.title("Aperture PSF")
 
 plt.figure(figsize = (14,6), dpi = 100)
 plt.subplot(1,2,1)
-plt.imshow(sim.input_img, cmap=colormap, extent = (-nxy*sim.platescale/2,nxy*sim.platescale/2,-nxy*sim.platescale/2,nxy*sim.platescale/2))
+plt.imshow(sim.emphasized_image(sim.input_img), cmap=colormap, extent = (-nxy*sim.platescale/2,nxy*sim.platescale/2,-nxy*sim.platescale/2,nxy*sim.platescale/2))
 plt.xlabel("[arcsec]")
 plt.ylabel("[arcsec]")
 plt.title("Input Image")
