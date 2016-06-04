@@ -164,20 +164,14 @@ class atmospheric_simulation():
   def add_noise(self,img,photons,gaussian_var):
     
     # Array to be returned
-    img_noisy = np.array(img)  
+    img_noisy = np.array(img)
     
     # If photons > 0, add shot noise
     if (photons>0):
-      # Normalize input image
-      img_normalized = np.abs(img_noisy)/(np.sum(img_noisy))
-      # Scale image to number of photons desired
-      img_scaled = img_normalized*photons
+      # Normalize image to number of photons incident
+      img_noisy = photons*(np.abs(img)/np.sum(img))
       # Calculate image with shot noise
-      img_noisy = np.random.poisson(lam=img_scaled, size=None)
-      # Normalize noisy image
-      noisy_power = np.sum(np.power(img_noisy,2))
-      img_noisy = np.divide(img_noisy,np.sqrt(noisy_power))
-      
+      img_noisy = np.random.poisson(lam=img_noisy, size=None)
       
     # If gaussian_var > 0, add additive noise
     if (gaussian_var > 0):  
@@ -187,9 +181,6 @@ class atmospheric_simulation():
       img_noisy = img_noisy+noise
       # Turn all negative pixels to 0
       img_noisy[img_noisy<0] = 0   
-      # Normalize noisy image
-      noisy_power = np.sum(np.power(img_noisy,2))
-      img_noisy = np.divide(img_noisy,np.sqrt(noisy_power))
     
     # Return noisy image
     return img_noisy  
