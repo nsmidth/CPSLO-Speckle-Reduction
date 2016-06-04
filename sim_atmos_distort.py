@@ -117,7 +117,7 @@ for i in np.arange(2):
   plt.imshow(img_shot_noise[i])
   plt.title(("Sensor Image (" + str(photons[i]) + " Photons)"))
 
-plt.figure(figsize = (10,16))
+plt.figure(figsize = (14,6))
 plt.subplot(1,2,1)
 plt.title("Shot Noise")
 plt.imshow(img_shot_noise2)
