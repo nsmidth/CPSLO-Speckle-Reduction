@@ -49,6 +49,12 @@ sim.get_psf()
 # Calculate simulated binary star image from PSF
 sim.get_binary()
 
+# Incices for zoomed view
+dx = 100 # Number of points to be plotted around the center of image
+x = np.arange(int(sim.center-dx/2),int(sim.center+dx/2)) # Points to be plotted
+
+fov = sim.center*sim.platescale
+
 #Plots
 colormap = "gray"
 plt.figure(figsize = (14,6), dpi = 100)
@@ -66,22 +72,17 @@ plt.title("Aperture PSF")
 
 plt.figure(figsize = (14,6), dpi = 100)
 plt.subplot(1,2,1)
-plt.imshow(sim.emphasized_image(sim.input_img), cmap=colormap, extent = (-nxy*sim.platescale/2,nxy*sim.platescale/2,-nxy*sim.platescale/2,nxy*sim.platescale/2))
-plt.xlabel("[arcsec]")
-plt.ylabel("[arcsec]")
-plt.title("Input Image")
+plt.imshow(sim.input_img, cmap=colormap)
+plt.axis([x[0],x[dx-1],x[0],x[dx-1]])
+plt.title("Zoomed Input Image")
 
 plt.subplot(1,2,2)
 plt.imshow(sim.binary_img, cmap=colormap)
-plt.xlabel("[pixels]")
-plt.ylabel("[pixels]")
-plt.title("Sensor Image")
+plt.axis([x[0],x[dx-1],x[0],x[dx-1]])
+plt.title("Zoomed Sensor Image")
 
 # Show center row of aperture PSF and sensor's image
 plt.figure(figsize = (20,10), dpi = 100)
-dx = 100 # Number of points to be plotted around the center of image
-x = np.arange(sim.center-50,sim.center+50) # Points to be plotted
-
 # Aperture PSF Plot
 plt.subplot(1,2,1)
 plt.plot(x,sim.psf[sim.center,x])
