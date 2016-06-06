@@ -33,6 +33,9 @@ class atmospheric_simulation():
     # Atmospheric Specs
     self.alpha = None # Multiplicative constant
     self.r0 = None # Fried Parameter
+    # NOTE: R0 DOESN'T YET PROPERLY MODEL A REAL R0 VALUE, ALPHA MUST BE 
+    # PROPERLY SET TO GIVE CORRECT COMPARISON TO REAL R0 VALUES. DID NOT 
+    # HAVE TIME TO CALCULATE THIS VALUE
     
     # Initializing Empty Images
     self.input_img = None # Input binary star object
