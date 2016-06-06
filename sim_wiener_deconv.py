@@ -102,7 +102,7 @@ F_hat_inverse = G/H # Inverse filtering deconvolution
 f_hat_inverse = np.abs(fftshift(ifft2(F_hat_inverse)))
 
 ## Simplified Wiener filtering
-k = 5E12
+k = 1E13
 F_hat_wiener1 = G*(1/H)*((H**2)/(H**2+k))
 f_hat_wiener1 = np.abs(fftshift(ifft2(F_hat_wiener1)))
 
