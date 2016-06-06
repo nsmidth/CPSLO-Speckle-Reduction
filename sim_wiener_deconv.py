@@ -66,8 +66,8 @@ for i in np.arange(n_exposures):
   # Calculate simulated binary star image from PSF
   sim.get_binary()
   # Add noise to binary and reference stars
-  sim.psf = sim.add_noise(sim.psf,1E5,1E-4)
-  sim.binary_img = sim.add_noise(sim.binary_img,1E5,1E-4)
+  sim.psf = sim.add_noise(sim.psf,1E5,1)
+  sim.binary_img = sim.add_noise(sim.binary_img,1E5,1)
   
   # Calculate PSD of binary star image
   binary_psd = np.power(np.abs(fftshift(fft2(sim.binary_img))),2)
@@ -102,7 +102,7 @@ F_hat_inverse = G/H # Inverse filtering deconvolution
 f_hat_inverse = np.abs(fftshift(ifft2(F_hat_inverse)))
 
 ## Simplified Wiener filtering
-k = 5E0
+k = 5E12
 F_hat_wiener1 = G*(1/H)*((H**2)/(H**2+k))
 f_hat_wiener1 = np.abs(fftshift(ifft2(F_hat_wiener1)))
 
