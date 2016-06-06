@@ -63,9 +63,8 @@ class atmospheric_simulation():
     input_img_power = np.sum(np.power(self.input_img,2))
     self.input_img = np.divide(self.input_img,np.sqrt(input_img_power))
     
-  def emphasized_image(self, img):
+  def emphasized_image(self, img, circle_radius = 3):
     # Convolve small circles with input images to make them more visible
-    circle_radius = 3
     # Create meshgrid
     xx,yy = np.meshgrid(np.arange(self.nxy),np.arange(self.nxy))
     # Calculate grid of distances from circle center
