@@ -51,8 +51,8 @@ f_hat_wiener1 = fftshift(np.abs(ifft2(F_hat_wiener1)))
 
 ## Wiener filtering with LPF for Signal PSD
 # Setting constant and LPF radius
-radius = 30
-k2 = 5E-3
+radius = 35
+k2 = 3E-3
 # Create centered meshgrid of image
 xx,yy = np.meshgrid(np.arange(nxy),np.arange(nxy))
 xx = np.subtract(xx,center)
@@ -104,17 +104,17 @@ plt.title("Deconvolved Acorr")
 plt.figure(figsize = (12,6), dpi = 100)
 plt.subplot(1,2,1)
 plt.imshow(((H**2)/(H**2+k1)), cmap=colormap)
-plt.title("Simplified Wiener")
+plt.title("Wiener Filter #1")
 plt.subplot(1,2,2)
 plt.imshow(((H**2)/(H**2+k2/lpf)), cmap=colormap)
-plt.title("Wiener w/ LPF")
+plt.title("Wiener Filter #2")
 
 plt.figure(figsize = (12,6), dpi = 100)
 plt.subplot(1,2,1)
 plt.imshow(deconv.psd.data, cmap=colormap)
-plt.title("Simplified Wiener")
+plt.title("Deconvolved PSD")
 plt.subplot(1,2,2)
 plt.imshow(deconv.acorr.data, cmap=colormap)
-plt.title("Wiener w/ LPF")
+plt.title("Deconvolved Acorr")
 
 plt.show()
