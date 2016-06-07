@@ -17,10 +17,10 @@ reference = target()
 deconv = deconvolved()
 
 # Define filenames for each target
-binary.fits.fileName = filedialog.askopenfilename(title="Select Binary FITS file")
-reference.fits.fileName = filedialog.askopenfilename(title="Select Reference FITS file")
-#binary.fits.fileName = "/home/niels/Documents/FITS/KP330.fits"
-#reference.fits.fileName = "/home/niels/Documents/FITS/KP331.fits"
+#binary.fits.fileName = filedialog.askopenfilename(title="Select Binary FITS file")
+#reference.fits.fileName = filedialog.askopenfilename(title="Select Reference FITS file")
+binary.fits.fileName = "/home/niels/Documents/FITS/KP336.fits"
+reference.fits.fileName = "/home/niels/Documents/FITS/KP338.fits"
 
 # Import each target
 binary.fits.read(numDimensions=3,printInfo=False)
@@ -44,7 +44,7 @@ f_hat_inverse = fftshift(np.abs(ifft2(F_hat_inverse)))
 
 ## Simplified Wiener filtering
 # Set Constant
-k1 = 1E-5
+k1 = 1E-3
 # Wiener filter and calculate acorr
 F_hat_wiener1 = G*(1/H)*((H**2)/(H**2+k1))
 f_hat_wiener1 = fftshift(np.abs(ifft2(F_hat_wiener1)))
@@ -52,7 +52,7 @@ f_hat_wiener1 = fftshift(np.abs(ifft2(F_hat_wiener1)))
 ## Wiener filtering with LPF for Signal PSD
 # Setting constant and LPF radius
 radius = 30
-k2 = 1E-7
+k2 = 1E-2
 # Create centered meshgrid of image
 xx,yy = np.meshgrid(np.arange(nxy),np.arange(nxy))
 xx = np.subtract(xx,center)
@@ -63,6 +63,10 @@ lpf = np.exp(-(np.power(rr,2)/(2*np.power(radius,2))))
 # Wiener filter and calculate acorr
 F_hat_wiener2 = G*(1/H)*((H**2)/(H**2+k2/lpf))
 f_hat_wiener2 = fftshift(np.abs(ifft2(F_hat_wiener2)))
+
+## Deconvolving with simple LPF'ed inverse filter
+deconv.psdDeconvolveLPF(psdBinary=G, psdReference=H, lpfRadius=30)
+deconv.acorrCalc()
 
 ## Display Images
 colormap = "jet"
@@ -103,6 +107,14 @@ plt.imshow(((H**2)/(H**2+k1)), cmap=colormap)
 plt.title("Simplified Wiener")
 plt.subplot(1,2,2)
 plt.imshow(((H**2)/(H**2+k2/lpf)), cmap=colormap)
+plt.title("Wiener w/ LPF")
+
+plt.figure(figsize = (12,6), dpi = 100)
+plt.subplot(1,2,1)
+plt.imshow(deconv.psd.data, cmap=colormap)
+plt.title("Simplified Wiener")
+plt.subplot(1,2,2)
+plt.imshow(deconv.acorr.data, cmap=colormap)
 plt.title("Wiener w/ LPF")
 
 plt.show()
