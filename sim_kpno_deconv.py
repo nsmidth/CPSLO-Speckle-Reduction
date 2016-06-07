@@ -52,7 +52,7 @@ f_hat_wiener1 = fftshift(np.abs(ifft2(F_hat_wiener1)))
 ## Wiener filtering with LPF for Signal PSD
 # Setting constant and LPF radius
 radius = 30
-k2 = 1E-2
+k2 = 5E-3
 # Create centered meshgrid of image
 xx,yy = np.meshgrid(np.arange(nxy),np.arange(nxy))
 xx = np.subtract(xx,center)
@@ -65,7 +65,7 @@ F_hat_wiener2 = G*(1/H)*((H**2)/(H**2+k2/lpf))
 f_hat_wiener2 = fftshift(np.abs(ifft2(F_hat_wiener2)))
 
 ## Deconvolving with simple LPF'ed inverse filter
-deconv.psdDeconvolveLPF(psdBinary=G, psdReference=H, lpfRadius=30)
+deconv.psdDeconvolveLPF(psdBinary=G, psdReference=H, lpfRadius=20)
 deconv.acorrCalc()
 
 ## Display Images
